@@ -10,7 +10,7 @@
   :description "Common Lisp text editor"
   :license "BSD"
   :version "0"
-  :depends-on (:alexandria :split-sequence)
+  :depends-on (:alexandria :split-sequence :croatoan)
   :serial t
   :components ((:file "dlist")
 			   (:file "package")
