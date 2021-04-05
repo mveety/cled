@@ -15,7 +15,7 @@
 	(with-slots (length (loc dlist::loc)) list
 	  (cond
 		((equal new-loc 0) (dl-head list))
-		((>= new-loc length) (dl-tail list))
+		((>= new-loc length) (dl-tail list) nil)
 		(t (let ((roffset (- new-loc loc)))
 			 (cond
 			   ((> roffset 0) (dl-nextn list roffset))
@@ -65,10 +65,10 @@
 (defgeneric get-char (tbuf))
 (defgeneric set-char (tbuf char))
 (defgeneric get-line (tbuf))
-(defgeneric cursor-left (tbuf))
-(defgeneric cursor-right (tbuf))
-(defgeneric cursor-up (tbuf))
-(defgeneric cursor-down (tbuf))
+
+(defmethod initialize-instance :after ((tbuf textbuf) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (dl-push tbuf (make-instance 'tb-line)))
 
 (defmethod linen ((tbuf textbuf))
   (1+ (dl-loc tbuf)))
@@ -77,8 +77,9 @@
   (move-to tbuf (1- n)))
 
 (defmethod set-dot ((tbuf textbuf) linen coln)
-  (set-linen tbuf linen)
-  (set-line-dot (dl-data tbuf) coln))
+  (list
+   (set-linen tbuf linen)
+   (set-line-dot (dl-data tbuf) coln)))
 
 (defmethod get-dot ((tbuf textbuf))
   (with-slots (line-dot col-dot) tbuf
