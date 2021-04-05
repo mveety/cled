@@ -5,4 +5,13 @@
 
 (defpackage :cled-core
   (:use :cl :dlist :alexandria :split-sequence)
-  (:export ))
+  (:export
+   ;; message passing bits
+   #:port
+   #:msg
+   #:sendmsg
+   #:getreply
+   #:message
+   #:reply
+   #:waitformsg
+   ))

@@ -14,4 +14,5 @@
   :serial t
   :components ((:file "dlist")
 			   (:file "package")
+			   (:file "message")
 			   ))
