@@ -5,6 +5,9 @@
 
 (in-package :cl-user)
 
+;; make sure everything is all safe
+(setf *print-circle* t)
+
 (defpackage :cl-cons-dlist
   (:nicknames :dlist)
   (:use :cl)
@@ -26,7 +29,8 @@
 		   #:dl-data
 		   #:dl-append-list
 		   #:dl-to-list
-		   #:make-dlist))
+		   #:make-dlist
+		   #:dl-loc))
 
 (in-package :dlist)
 
@@ -107,6 +111,9 @@ lists that lisp chokes on."))
 (defgeneric dl-to-list (list)
   (:documentation "Convert a dlist LIST to a normal list"))
 
+(defgeneric dl-loc (list)
+  (:documentation "Get the cursor's location"))
+
 (defmethod dl-length ((list dlist))
   (slot-value list 'length))
 
@@ -149,20 +156,23 @@ lists that lisp chokes on."))
 
 (defmethod dl-insert ((list dlist) data)
   (with-slots (length loc head cur tail) list
-	(if (eq cur tail)
-		(progn
-		  (dl-append list data)
-		  (set cur tail))
-		(progn (let ((new-elem (new-element nil nil data))
-					 (cur->next (getnext cur)))
-				 (set-prev new-elem cur)
-				 (set-next new-elem cur->next)
-				 (set-next cur new-elem)
-				 (set-prev cur->next new-elem)
-				 (setf cur new-elem)
-				 (incf length)
-				 (incf loc))))
-	data))
+	(if (and (null head) (null cur) (null tail))
+		(initialize-dlist list data)
+		(if (eq cur tail)
+			(progn
+			  (dl-append list data)
+			  (incf loc)
+			  (setf cur tail))
+			(progn (let ((new-elem (new-element nil nil data))
+						 (cur->next (getnext cur)))
+					 (set-prev new-elem cur)
+					 (set-next new-elem cur->next)
+					 (set-next cur new-elem)
+					 (set-prev cur->next new-elem)
+					 (setf cur new-elem)
+					 (incf length)
+					 (incf loc)))))
+		data))
 
 (defmethod dl-remove ((list dlist))
   (with-slots (length loc head cur tail) list
@@ -174,7 +184,8 @@ lists that lisp chokes on."))
 			((and (null prev) (null next))
 			 (setf head nil
 				   cur nil
-				   tail nil))
+				   tail nil
+				   length 0))
 			((and (null prev) next)
 			 (set-prev next nil)
 			 (setf cur next
@@ -253,14 +264,18 @@ lists that lisp chokes on."))
 	  st)))
 
 (defmethod dl-head ((list dlist))
-  (with-slots (head cur) list
-	(setf cur head)
-	t))
+  (with-slots (loc head cur) list
+	(unless (null head)
+	  (setf loc 0)
+	  (setf cur head)
+	  t)))
 
 (defmethod dl-tail ((list dlist))
-  (with-slots (cur tail) list
-	(setf cur tail)
-	t))
+  (with-slots (loc length cur tail) list
+	(unless (null tail)
+	  (setf loc (1- length))
+	  (setf cur tail)
+	  t)))
 
 (defmethod dl-data ((list dlist))
   (cdr (slot-value list 'cur)))
@@ -301,6 +316,9 @@ lists that lisp chokes on."))
 		  (if (null (dl-next tdlist))
 			  (loop-finish)))
 		(nreverse tmp))))
+
+(defmethod dl-loc ((list dlist))
+  (slot-value list 'loc))
 
 (defun make-dlist (&optional source-list)
   "Create a new dlist, optionally filled using the contents of SOURCE-LIST"

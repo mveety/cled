@@ -15,4 +15,5 @@
   :components ((:file "dlist")
 			   (:file "package")
 			   (:file "message")
+			   (:file "textbuf")
 			   ))

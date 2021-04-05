@@ -14,4 +14,15 @@
    #:message
    #:reply
    #:waitformsg
+   ;; textbuf
+   #:set-dot
+   #:get-dot
+   #:insert-line
+   #:remove-line
+   #:insert-char
+   #:remove-char
+   #:get-char
+   #:set-char
+   #:get-line
+
    ))
