@@ -1,6 +1,7 @@
 ;;; cl-cons-dlist -- Doubly linked lists using conses
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
+;;; NOTE: This is a special version of dlist specifically for cled.
 
 (in-package :cl-user)
 
@@ -33,6 +34,7 @@
 
 (defclass dlist ()
   ((length :initform 0)
+   (loc :initform 0)
    (head :initform nil)
    (cur :initform nil)
    (tail :initform nil))
@@ -146,7 +148,7 @@ lists that lisp chokes on."))
 		  data))))
 
 (defmethod dl-insert ((list dlist) data)
-  (with-slots (length head cur tail) list
+  (with-slots (length loc head cur tail) list
 	(if (eq cur tail)
 		(progn
 		  (dl-append list data)
@@ -158,45 +160,45 @@ lists that lisp chokes on."))
 				 (set-next cur new-elem)
 				 (set-prev cur->next new-elem)
 				 (setf cur new-elem)
-				 (incf length))))
+				 (incf length)
+				 (incf loc))))
 	data))
 
 (defmethod dl-remove ((list dlist))
-  (with-slots (length head cur tail) list
+  (with-slots (length loc head cur tail) list
 	(if (zerop length)
 		nil
 		(let ((prev (getprev cur))
 			  (next (getnext cur)))
 		  (cond
 			((and (null prev) (null next))
-			 (format t "single element list~%")
 			 (setf head nil
 				   cur nil
 				   tail nil))
 			((and (null prev) next)
-			 (format t "cur = head~%")
 			 (set-prev next nil)
 			 (setf cur next
 				   head next))
 			((and prev (null next))
-			 (format t "cur = tail~%")
 			 (set-next prev nil)
 			 (setf cur prev
-				   tail prev))
+				   tail prev)
+			 (decf loc))
 			(t
-			 (format t "cur is in the middle~%")
 			 (set-prev next prev)
 			 (set-next prev next)
-			 (setf cur prev)))
+			 (setf cur prev)
+			 (decf loc)))
 		  (decf length)
 		  t))))
 
 (defmethod dl-next ((list dlist))
-  (with-slots (cur) list
+  (with-slots (loc cur) list
 	(if (null (getnext cur))
 		nil
 		(progn
 		  (setf cur (getnext cur))
+		  (incf loc)
 		  t))))
 
 (defmethod dl-nextn ((list dlist) n)
@@ -207,6 +209,7 @@ lists that lisp chokes on."))
 	t))
 
 (defmethod dl-nextn-fast ((list dlist) n)
+  "WARNING: this version of nextn does not update loc"
   (with-slots (cur) list
 	(let* ((tmp cur)
 		   (sc nil)
@@ -220,11 +223,12 @@ lists that lisp chokes on."))
 	  st)))
 
 (defmethod dl-prev ((list dlist))
-  (with-slots (cur) list
+  (with-slots (loc cur) list
 	(if (null (getprev cur))
 		nil
 		(progn
 		  (setf cur (getprev cur))
+		  (decf loc)
 		  t))))
 
 (defmethod dl-prevn ((list dlist) n)
@@ -235,6 +239,7 @@ lists that lisp chokes on."))
 	t))
 
 (defmethod dl-prevn-fast ((list dlist) n)
+  "WARNING: this version of prevn does not update loc"
   (with-slots (cur) list
 	(let* ((tmp cur)
 		   (sc nil)
