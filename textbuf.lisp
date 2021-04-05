@@ -65,6 +65,7 @@
 (defgeneric get-char (tbuf))
 (defgeneric set-char (tbuf char))
 (defgeneric get-line (tbuf))
+(defgeneric line-length (tbuf))
 
 (defmethod initialize-instance :after ((tbuf textbuf) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -123,3 +124,30 @@
 
 (defmethod get-line ((tbuf textbuf))
   (dl-to-list (dl-data tbuf)))
+
+(defmethod line-length ((tbuf textbuf))
+  (dl-length (dl-data tbuf)))
+
+(defmethod print-object ((list textbuf) stream)
+  (print-unreadable-object (list stream :type t)
+	(let ((tmplst (dlist::copy-dlist list))
+		  (counter 0)
+		  (curdot (get-dot list)))
+	  (if (> (dl-length tmplst) 0)
+		  (progn
+			(format stream "length: ~A, dot: (~A,~A), data: ("
+					(dl-length tmplst)
+					(car curdot)
+					(cadr curdot))
+			(loop do
+			  (format stream "~S" (dl-data tmplst))
+			  (if (null (dl-next tmplst))
+				  (loop-finish)
+				  (if (< counter (1- *element-printing-limit*))
+					  (format stream " ")
+					  (progn
+						(format stream "...")
+						(loop-finish))))
+			  (incf counter))
+			(format stream ")"))
+		  (format stream "length: 0, data: nil")))))

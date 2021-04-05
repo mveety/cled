@@ -73,18 +73,39 @@
 
 (defun merge-lines (tbuf source-line)
   "This will merge a line with the line above it"
-  (if (<= (car (get-dot tbuf)) 1)
-	  nil
-	  (progn
-		(set-dot tbuf source-line 0)
-		(let ((source (dl-data tbuf))
-			  (dest nil)
-			  (dest-col-dot 0))
-		  ; nuke the source line
-		  (remove-line tbuf)
-		  ; current line is now the dot
-		  (setf dest (dl-data tbuf))
-		  (dl-tail dest)
-		  (setf dest-col-dot (line-dot dest))
-		  (dl-append-list dest (dl-to-list source))
-		  (set-line-dot dest dest-col-dot)))))
+  (let ((cur-dot (get-dot tbuf)))
+	(set-dot tbuf source-line 0)
+	(if (<= (car (get-dot tbuf)) 1)
+		(progn
+		  (apply #'set-dot (cons tbuf cur-dot))
+		  nil)
+		(progn
+		  (let ((source (dl-data tbuf))
+				(dest nil)
+				(dest-col-dot 0))
+			;; nuke the source line
+			(remove-line tbuf)
+			;; current line is now the dot
+			(setf dest (dl-data tbuf))
+			(dl-tail dest)
+			(setf dest-col-dot (line-dot dest))
+			(dl-append-list dest (dl-to-list source))
+			(set-line-dot dest dest-col-dot))
+		  (apply #'set-dot (cons tbuf cur-dot))))))
+
+(defun split-line (tbuf source-line split-pos)
+  (let ((cur-dot (get-dot tbuf)))
+	(set-dot tbuf source-line split-pos)
+	(if (= (cadr (get-dot tbuf)) 1)
+		(insert-line tbuf :above t)
+		(let ((last-half nil))
+		  (loop do
+			(push (get-char tbuf) last-half)
+			(remove-char tbuf)
+			(when (null (cadr (set-dot tbuf source-line split-pos)))
+			  (loop-finish)))
+		  (insert-line tb)
+		  (set-dot tbuf (1+ source-line) 0)
+		  (dolist (c (nreverse last-half))
+			(insert-char tbuf c))))
+	(apply #'set-dot (cons tbuf cur-dot))))
