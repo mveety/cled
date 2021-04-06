@@ -6,7 +6,8 @@
 (in-package :cled-core)
 
 (defclass command-table ()
-  ((commands :initarg :commands))
+  ((commands :initarg :commands)
+   (cmdlist :initform nil :initarg :cmdlist))
   (:default-initargs
    :commands (make-hash-table :size 15)))
 
@@ -17,10 +18,13 @@
 (defgeneric run-command (tbl name &rest args))
 (defgeneric run-table (p tbl &key end-command default-function))
 (defgeneric sendcmd (p name &rest args))
+(defgeneric get-command-list (tbl))
 
 (defmethod add-command ((tbl command-table) name fun &key (nargs nil) (object nil))
-  (with-slots (commands) tbl
-	(setf (gethash name commands) (list :name name :fun fun :nargs nargs :prepend object))))
+  (with-slots (commands cmdlist) tbl
+	(setf (gethash name commands) (list :name name :fun fun :nargs nargs :prepend object))
+	(when (not (member name cmdlist))
+	  (push name cmdlist))))
 
 (defmethod command-exists ((tbl command-table) name)
   (cadr (multiple-value-list (gethash name (slot-value tbl 'commands)))))
@@ -32,25 +36,31 @@
 		nil)))
 
 (defmethod del-command ((tb command-table) name)
-  (remhash name (slot-value tb 'commands)))
+  (remhash name (slot-value tb 'commands))
+  (setf (slot-value tb 'cmdlist) (remove name (slot-value tb 'cmdlist))))
+
+(defun run-command-1 (cmd args)
+  (list :status nil :returns
+		(apply (getf cmd :fun) (if (null (getf cmd :prepend))
+								   args
+								   (cons (getf cmd :prepend) args)))))
 
 (defmethod run-command ((tbl command-table) name &rest args)
-  (let ((cmd (find-command tbl name)))
+  (let* ((cmd (find-command tbl name))
+		 (nargs (getf cmd :nargs)))
 	(if (null cmd)
 		(list :status :not-found :returns nil)
-		(if (or (null (getf cmd :nargs)) (zerop (getf cmd :nargs)))
+		(if (numberp nargs)
+			(if (= nargs (length args))
+				(run-command-1 cmd args)
+				(list :status :args-error :returns nil))
 			(list :status nil :returns
-				  (if (null (getf cmd :prepend))
-					  (funcall (getf cmd :fun))
-					  (funcall (getf cmd :fun) (getf cmd :prepend))))
-			(if (and (not (= (length args) (getf cmd :nargs)))
-					 (not (equal (getf cmd :nargs) t)))
-				(list :status :args-error :returns nil)
-				(list :status nil :returns
-					  (if (null (getf cmd :prepend))
-						  (apply (getf cmd :fun) args)
-						  (apply (getf cmd :fun)
-								 (cons (getf cmd :prepend) args)))))))))
+				  (if (equal nargs t)
+					  (run-command-1 cmd args)
+					  (if (not (getf cmd :prepend))
+						  (funcall (getf cmd :fun))
+						  (funcall (getf cmd :fun) (getf cmd :prepend)))))))))
+						  
 
 (defmethod run-table ((p port) (tbl command-table) &key (end-command nil) (default-function nil))
   (let ((tmpmsg nil)
@@ -69,11 +79,17 @@
 				(reply tmpmsg (list :status nil :returns t))
 				(loop-finish))
 			  (if default-function
-				  (reply tmpmsg (list :status nil :returns (funcall default-function (cadr msgdata))))
+				  ;; the default function is if you need to send an unhandled command down
+				  ;; the chain. This means we just pass the straight return values to the
+				  ;; caller.
+				  (reply tmpmsg (funcall default-function msgdata))
 				  (reply tmpmsg (list :status :unknown-command :returns nil))))))))
 
 (defmethod sendcmd ((p port) name &rest args)
-  (let ((rval (message p (list name args))))
+  (let ((rval (message p (append (list name) args))))
 	(if (null (cadr rval))
 		(list :status :failed-reply :returns nil)
 		(car rval))))
+
+(defmethod get-command-list ((tbl command-table))
+  (slot-value tbl 'cmdlist))
