@@ -35,7 +35,7 @@
 	  nil))
 
 (defmethod sendmsg ((p port) data &key (reply t))
-  (let ((newmsg (make-instance 'message
+  (let ((newmsg (make-instance 'msg
 							   :payload data
 							   :reply (return-new-chan reply))))
 	(chanl:send (slot-value p 'channel) newmsg)
@@ -45,7 +45,9 @@
   (with-slots (reply) m
 	(if (null reply)
 		nil
-		(let ((rval (multiple-value-list (chanl:recv m :blockp blockp))))
+		(let ((rval (multiple-value-list
+					 (chanl:recv reply
+								 :blockp blockp))))
 		  (if (null (cadr rval))
 			  (list nil nil)
 			  (list (car rval) t))))))
