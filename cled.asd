@@ -15,6 +15,7 @@
   :components ((:file "dlist")
 			   (:file "package")
 			   (:file "message")
+			   (:file "cmdproc")
 			   (:file "textbuf")
 			   (:file "textbuf-tools")
 			   ))

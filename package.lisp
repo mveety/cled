@@ -14,6 +14,14 @@
    #:message
    #:reply
    #:waitformsg
+   ;; message passing event loop
+   #:add-command
+   #:command-exists
+   #:find-command
+   #:del-command
+   #:run-command
+   #:run-table
+   #:sendcmd
    ;; textbuf
    #:set-dot
    #:get-dot
