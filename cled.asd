@@ -16,4 +16,5 @@
 			   (:file "package")
 			   (:file "message")
 			   (:file "textbuf")
+			   (:file "textbuf-tools")
 			   ))

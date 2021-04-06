@@ -24,5 +24,14 @@
    #:get-char
    #:set-char
    #:get-line
-
+   #:line-length
+   ;; textbuf-tools
+   #:make-textbuf
+   #:tbuf-to-list
+   #:get-n-lines
+   #:line-list-to-cs
+   #:line-list-to-strings
+   #:line-list-to-chars
+   #:merge-lines
+   #:split-line
    ))

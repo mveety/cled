@@ -104,7 +104,7 @@
 			(remove-char tbuf)
 			(when (null (cadr (set-dot tbuf source-line split-pos)))
 			  (loop-finish)))
-		  (insert-line tb)
+		  (insert-line tbuf)
 		  (set-dot tbuf (1+ source-line) 0)
 		  (dolist (c (nreverse last-half))
 			(insert-char tbuf c))))
