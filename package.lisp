@@ -22,6 +22,7 @@
    #:run-command
    #:run-table
    #:sendcmd
+   #:get-command-list
    ;; textbuf
    #:set-dot
    #:get-dot
