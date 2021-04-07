@@ -39,10 +39,6 @@
 (defgeneric set-cursor (buf line col)) ;; :set-cursor [line] [col] -> t,nil
 (defgeneric get-cursor (buf)) ;; :get-cursor -> (line col)
 
-;;; process control
-(defgeneric buffer-start (buf))
-(defgeneric buffer-stop (buf))
-
 ;;; text insertion/deletion
 (defgeneric buffer-backspace (buf)) ;; :backspace
 (defgeneric buffer-insert-char (buf c)) ;; :insert [char]
@@ -92,3 +88,45 @@
 
 (defmethod buffer-nlines ((buf simple-buffer))
   (dl-length buf))
+
+(defmethod cursor-up ((buf simple-buffer) &optional (repeat 1))
+  (let ((cur-dot nil))
+	(dotimes (i repeat)
+	  (setf cur-dot (get-dot buf))
+	  (unless (= (car cur-dot) 1)
+		(set-dot buf (1- (car cur-dot)) (cadr cur-dot))))))
+
+(defmethod cursor-down ((buf simple-buffer) &optional (repeat 1))
+  (let ((cur-dot nil))
+	(dotimes (i repeat)
+	  (setf cur-dot (get-dot buf))
+	  (unless (= (car cur-dot) (dl-length buf))
+		(set-dot buf (1+ (car cur-dot)) (cadr cur-dot))))))
+
+(defmethod cursor-left ((buf simple-buffer) &optional (repeat 1))
+  (let ((cur-dot nil))
+	(dotimes (i repeat)
+	  (setf cur-dot (get-dot buf))
+	  (if (= (cadr cur-dot) 1)
+		  (progn
+			(unless (= (car cur-dot) 1)
+			  (cursor-up buf)
+			  (set-dot buf (car (get-dot buf)) (line-length buf))))
+		  (set-dot buf (car cur-dot) (1- (cadr cur-dot)))))))
+
+(defmethod cursor-right ((buf simple-buffer) &optional (repeat 1))
+  (let ((cur-dot nil))
+	(dotimes (i repeat)
+	  (setf cur-dot (get-dot buf))
+	  (if (= (cadr cur-dot) (line-length buf))
+		  (progn
+			(unless (= (car cur-dot) (dl-length buf))
+			  (cursor-down buf)
+			  (set-dot buf (car (get-dot buf)) 1)))
+		  (set-dot buf (car cur-dot) (1+ (cadr cur-dot)))))))
+
+(defmethod set-cursor ((buf simple-buffer) line col)
+  (set-dot buf line col))
+
+(defmethod get-cursor ((buf simple-buffer))
+  (get-dot buf))
