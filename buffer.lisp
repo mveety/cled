@@ -10,7 +10,7 @@
    (name :initform "unnamed" :initargs :name)
    (lock :initform nil :initargs :lock)
    (dirty :initform t) ;; has the buffer changed since last update
-   (no-update-if-clean :initform nil) ;; if set, only do a full update if dirty
+   (no-update-if-clean :initform t) ;; if set, only do a full update if dirty
    (owning-window :initform nil) ;; the window that owns the buffer
    (visible :initform nil) ;; is the buffer visible
    (thread :initform nil :initarg thread)))
