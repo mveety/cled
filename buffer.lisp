@@ -29,6 +29,7 @@
 (defgeneric set-name (buf name)) ;; :set-name [name]
 (defgeneric show-buffer (buf)) ;; :visible
 (defgeneric hide-buffer (buf)) ;; :hidden
+(defgeneric buffer-nlines (buf)) ;; :nlines
 
 ;;; cursor movement
 (defgeneric cursor-up (buf &optional repeat)) ;; :cursor-up [n] -> t,nil
@@ -89,3 +90,5 @@
 (defmethod hide-buffer ((buf simple-buffer))
   (setf (slot-value buf 'visible) nil))
 
+(defmethod buffer-nlines ((buf simple-buffer))
+  (dl-length buf))
