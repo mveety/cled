@@ -18,6 +18,7 @@
 (defgeneric run-command (tbl name &rest args))
 (defgeneric run-table (p tbl &key end-command default-function))
 (defgeneric sendcmd (p name &rest args))
+(defgeneric noreturn-sendcmd (p name &rest args))
 (defgeneric get-command-list (tbl))
 
 (defmethod add-command ((tbl command-table) name fun &key (nargs nil) (object nil))
@@ -90,6 +91,9 @@
 	(if (null (cadr rval))
 		(list :status :failed-reply :returns nil)
 		(car rval))))
+
+(defmethod noreturn-sendcmd ((p port) name &rest args)
+  (message p (append (list name) args) :reply nil))
 
 (defmethod get-command-list ((tbl command-table))
   (slot-value tbl 'cmdlist))
