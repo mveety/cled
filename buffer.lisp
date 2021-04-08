@@ -41,15 +41,15 @@
 (defgeneric get-cursor (buf)) ;; :get-cursor -> (line col)
 
 ;;; text insertion/deletion
-(defgeneric buffer-backspace (buf)) ;; :backspace
-(defgeneric buffer-insert-char (buf c)) ;; :insert [char]
-(defgeneric buffer-tab (buf)) ;; :tab
-(defgeneric buffer-newline (buf)) ;; :newline
-(defgeneric buffer-space (buf)) ;; :space
+(defgeneric buffer-backspace (buf)) ;; :backspace -> x
+(defgeneric buffer-insert-char (buf c)) ;; :insert [char] -> x
+(defgeneric buffer-tab (buf)) ;; :tab -> x
+(defgeneric buffer-newline (buf)) ;; :newline -> x
+(defgeneric buffer-space (buf)) ;; :space -> x
 
 ;;; really basic text editing
-(defgeneric buffer-copy-char (buf)) ;; :char-copy
-(defgeneric buffer-cut-char (buf)) ;; :char-cut
+(defgeneric buffer-copy-char (buf)) ;; :char-copy -> char
+(defgeneric buffer-cut-char (buf)) ;; :char-cut -> char
 
 
 (defmethod buffer-dirty-p ((buf simple-buffer))
@@ -142,3 +142,22 @@
 			(set-dot buf (car (cur-dot buf))
 					 (line-length buf)))
 		(remove-char buf))))
+
+(defmethod buffer-insert-char ((buf simple-buffer) c)
+  (insert-char buf c))
+
+(defmethod buffer-tab ((buf simple-buffer))
+  (buffer-insert-char buf #\Tab))
+
+(defmethod buffer-newline ((buf simple-buffer))
+  (let ((cur-dot (get-dot buf)))
+	(if (slot-value (dl-data buf) 'zero-dot)
+		(insert-line buf :above t)
+		(if (= (cadr cur-dot) (line-length buf))
+			(insert-line buf :above nil)
+			(progn
+			  (split-line buf (car cur-dot) (cadr cur-dot))
+			  (set-dot buf (1+ (car cur-dot)) 0))))))
+
+(defmethod buffer-space ((buf simple-buffer))
+  (buffer-insert-char buf #\Space))
