@@ -75,9 +75,11 @@
 			   (not full)
 			   (not initial))
 		  (list '(:dot) cursor-pos nil)
-		  (list '(:dot :lines)
-				cursor-pos
-				(line-list-to-chars (get-n-lines buf start length nil)))))))
+		  (prog1
+			  (list '(:dot :lines)
+					cursor-pos
+					(line-list-to-chars (get-n-lines buf start length nil)))
+			(unset-buffer-dirty buf))))))
 
 (defmethod set-buffer-owner ((buf simple-buffer) win)
   (setf (slot-value buf 'owning-window) win))
@@ -216,3 +218,14 @@
 
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
 
+(defun simple-buffer-process (buf)
+  (run-table buf buf :end-command :end-command))
+
+(defun make-simple-buffer (&optional (name "unnamed"))
+  (let ((newbuf (make-instance 'simple-buffer :name name)))
+	(add-template-to-cmd-table newbuf *simple-buffer-cmd-template* newbuf)
+	(setf (slot-value newbuf 'thread)
+		  (bt:make-thread (lambda ()
+							(simple-buffer-process newbuf))
+						  :name (concatenate 'string "buffer-thread: " name)))
+	newbuf))
