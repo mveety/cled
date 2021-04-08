@@ -1,4 +1,3 @@
-
 ;;; -*- Syntax: Common-Lisp -*-
 ;;; cled -- Text editor in common lisp
 ;;; Copyright 2021 Matthew Veety. Under BSD License
@@ -7,7 +6,7 @@
 (in-package :cled-core)
 
 (defclass simple-buffer (textbuf port command-table)
-  ((type :initform 'simple) ;; the buffer type
+  ((type :initform 'simple-buffer) ;; the buffer type
    (name :initform "unnamed" :initargs :name)
    (lock :initform nil :initargs :lock)
    (dirty :initform t) ;; has the buffer changed since last update
@@ -16,7 +15,8 @@
    (visible :initform nil) ;; is the buffer visible
    (thread :initform nil :initarg thread)))
 
-
+(defvar *simple-buffer-cmd-template* nil
+  "Command table template for simple-buffers")
 
 ;;;;;; PROTOCOL ;;;;;;
 
@@ -178,4 +178,41 @@
 	  (get-char buf)
 	(remove-char buf)))
 
+;;;;;; COMMAND DEFINITIONS ;;;;;;
+
+(defmacro defcmd-buf (name fun &optional (nargs nil))
+  `(defcommand *simple-buffer-cmd-template*
+	 ,name
+	 ,fun
+	 :nargs ,nargs
+	 :object t))
+
+(defcmd-buf :dirty #'buffer-dirty-p)
+(defcmd-buf :set-dirty #'set-buffer-dirty)
+(defcmd-buf :unset-dirty #'unset-buffer-dirty)
+(defcmd-buf :get-update #'get-buffer-update t)
+(defcmd-buf :set-owner #'set-buffer-owner 1)
+(defcmd-buf :unset-owner #'unset-buffer-owner)
+(defcmd-buf :set-name #'set-name 1)
+(defcmd-buf :visible #'show-buffer)
+(defcmd-buf :hidden #'hide-buffer)
+(defcmd-buf :nlines #'buffer-nlines)
+
+(defcmd-buf :cursor-up #'cursor-up t)
+(defcmd-buf :cursor-down #'cursor-down t)
+(defcmd-buf :cursor-left #'cursor-left t)
+(defcmd-buf :cursor-right #'cursor-right t)
+(defcmd-buf :set-cursor #'set-cursor 2)
+(defcmd-buf :get-cursor #'get-cursor)
+
+(defcmd-buf :backspace #'buffer-backspace)
+(defcmd-buf :insert #'buffer-insert 1)
+(defcmd-buf :tab #'buffer-tab)
+(defcmd-buf :newline #'buffer-newline)
+(defcmd-buf :space #'buffer-space)
+
+(defcmd-buf :char-copy #'buffer-copy-char)
+(defcmd-buf :char-cut #'buffer-cut-char)
+
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
+
