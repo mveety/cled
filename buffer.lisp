@@ -16,6 +16,10 @@
    (visible :initform nil) ;; is the buffer visible
    (thread :initform nil :initarg thread)))
 
+
+
+;;;;;; PROTOCOL ;;;;;;
+
 ;;; buffers are interfaced with much like how a text file would be interacted with
 ;;; in a text editor. Simple-buffers are extremely simple and only have the commands
 ;;; to do basic cursor movement, editing, and process management.
@@ -40,14 +44,14 @@
 (defgeneric set-cursor (buf line col)) ;; :set-cursor [line] [col] -> t,nil
 (defgeneric get-cursor (buf)) ;; :get-cursor -> (line col)
 
-;;; text insertion/deletion
+;;; text insertion/deletion (these make a buffer dirty)
 (defgeneric buffer-backspace (buf)) ;; :backspace -> x
 (defgeneric buffer-insert-char (buf c)) ;; :insert [char] -> x
 (defgeneric buffer-tab (buf)) ;; :tab -> x
 (defgeneric buffer-newline (buf)) ;; :newline -> x
 (defgeneric buffer-space (buf)) ;; :space -> x
 
-;;; really basic text editing
+;;; really basic text editing (these make a buffer dirty)
 (defgeneric buffer-copy-char (buf)) ;; :char-copy -> char
 (defgeneric buffer-cut-char (buf)) ;; :char-cut -> char
 
@@ -133,6 +137,7 @@
   (get-dot buf))
 
 (defmethod buffer-backspace ((buf simple-buffer))
+  (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
 	(if (not (= (cadr cur-dot 1)))
 		(if (slot-value (dl-data buf) 'zero-dot)
@@ -144,12 +149,14 @@
 		(remove-char buf))))
 
 (defmethod buffer-insert-char ((buf simple-buffer) c)
+  (set-buffer-dirty buf)
   (insert-char buf c))
 
 (defmethod buffer-tab ((buf simple-buffer))
   (buffer-insert-char buf #\Tab))
 
 (defmethod buffer-newline ((buf simple-buffer))
+  (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
 	(if (slot-value (dl-data buf) 'zero-dot)
 		(insert-line buf :above t)
@@ -160,4 +167,15 @@
 			  (set-dot buf (1+ (car cur-dot)) 0))))))
 
 (defmethod buffer-space ((buf simple-buffer))
+  (set-buffer-dirty buf)
   (buffer-insert-char buf #\Space))
+
+(defmethod buffer-copy-char ((buf simple-buffer))
+  (get-char buf))
+
+(defmethod buffer-cut-char ((buf simple-buffer))
+  (prog1
+	  (get-char buf)
+	(remove-char buf)))
+
+;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;

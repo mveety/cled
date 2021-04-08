@@ -23,6 +23,8 @@
    #:run-table
    #:sendcmd
    #:get-command-list
+   #:defcommand
+   #:add-template-to-cmd-table
    ;; textbuf
    #:set-dot
    #:get-dot
