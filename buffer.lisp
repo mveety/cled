@@ -1,3 +1,4 @@
+
 ;;; -*- Syntax: Common-Lisp -*-
 ;;; cled -- Text editor in common lisp
 ;;; Copyright 2021 Matthew Veety. Under BSD License
@@ -130,3 +131,14 @@
 
 (defmethod get-cursor ((buf simple-buffer))
   (get-dot buf))
+
+(defmethod buffer-backspace ((buf simple-buffer))
+  (let ((cur-dot (get-dot buf)))
+	(if (not (= (cadr cur-dot 1)))
+		(if (slot-value (dl-data buf) 'zero-dot)
+			(if (= (line-length buf) 0)
+				(remove-line buf)
+				(merge-lines buf (car cur-dot)))
+			(set-dot buf (car (cur-dot buf))
+					 (line-length buf)))
+		(remove-char buf))))
