@@ -102,8 +102,12 @@
   `(eval-when (:load-toplevel :execute)
 	 (push (list ,name ,fun ,nargs ,object) ,table-template)))
 
-(defun add-template-to-cmd-table (tbl table-template)
+(defun add-template-to-cmd-table (tbl table-template &optional obj)
   (dolist (te table-template)
 	(let ((name (car te)) (fun (cadr te))
 		  (nargs (caddr te)) (object (cadddr te)))
-	  (add-command tbl name fun :object object :nargs nargs))))
+	  (add-command tbl
+				   name
+				   fun
+				   :object (if object obj nil)
+				   :nargs nargs))))
