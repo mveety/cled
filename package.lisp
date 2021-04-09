@@ -22,5 +22,5 @@
    #:line-list-to-strings #:line-list-to-chars #:merge-lines #:split-line
    ;; buffer
    #:*buffer-types* #:make-buffer #:define-buffer-type #:buffer
-   #:buffer #:buffer-type-string #:buffer-name
+   #:buffer-type #:buffer-type-string #:buffer-name
    ))

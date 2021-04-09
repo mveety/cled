@@ -66,9 +66,7 @@
 
 (defmethod get-buffer-update ((buf simple-buffer) start length &key (full nil) (initial nil))
   (with-slots (dirty no-update-if-clean) buf
-	(let ((update-list nil)
-		  (cursor-pos (get-dot buf))
-		  (lines nil))
+	(let ((cursor-pos (get-dot buf)))
 	  (if (and (not dirty)
 			   no-update-if-clean
 			   (not full)
@@ -84,7 +82,10 @@
   (setf (slot-value buf 'owning-window) win))
 
 (defmethod unset-buffer-owner ((buf simple-buffer))
-  (setf (slot-value buf 'owning-window) win))
+  (setf (slot-value buf 'owning-window) nil))
+
+(defmethod set-name ((buf simple-buffer) name)
+  (setf (buffer-name buf) name))
 
 (defmethod show-buffer ((buf simple-buffer))
   (setf (slot-value buf 'visible) t))
@@ -140,12 +141,12 @@
 (defmethod buffer-backspace ((buf simple-buffer))
   (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
-	(if (not (= (cadr cur-dot 1)))
+	(if (not (= (cadr cur-dot) 1))
 		(if (slot-value (dl-data buf) 'zero-dot)
 			(if (= (line-length buf) 0)
 				(remove-line buf)
 				(merge-lines buf (car cur-dot)))
-			(set-dot buf (car (cur-dot buf))
+			(set-dot buf (car cur-dot)
 					 (line-length buf)))
 		(remove-char buf))))
 
@@ -207,7 +208,7 @@
 (defcmd-buf :get-cursor #'get-cursor)
 
 (defcmd-buf :backspace #'buffer-backspace)
-(defcmd-buf :insert #'buffer-insert 1)
+(defcmd-buf :insert #'buffer-insert-char 1)
 (defcmd-buf :tab #'buffer-tab)
 (defcmd-buf :newline #'buffer-newline)
 (defcmd-buf :space #'buffer-space)
@@ -229,3 +230,5 @@
 							(simple-buffer-process newbuf))
 						  :name (concatenate 'string "buffer-thread: " name)))
 	newbuf))
+
+(define-buffer-type 'simple-buffer #'make-simple-buffer)
