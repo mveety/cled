@@ -19,4 +19,5 @@
 			   (:file "textbuf")
 			   (:file "textbuf-tools")
 			   (:file "buffer")
+			   (:file "simple-buffer")
 			   ))

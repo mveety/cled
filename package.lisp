@@ -23,4 +23,12 @@
    ;; buffer
    #:*buffer-types* #:make-buffer #:define-buffer-type #:buffer
    #:buffer-type #:buffer-type-string #:buffer-name
+   ;; simple-buffer
+   #:simple-buffer #:*simple-buffer-cmd-template*
+   #:buffer-dirty-p #:set-buffer-dirty #:unset-buffer-dirty #:get-buffer-update
+   #:set-buffer-owner #:set-name #:show-buffer #:hide-buffer #:buffer-nlines
+   #:cursor-up #:cursor-down #:cursor-left #:cursor-right
+   #:set-cursor #:get-cursor
+   #:buffer-backspace #:buffer-insert-char #:buffer-tab #:buffer-newline
+   #:buffer-space #:buffer-copy-char #:buffer-cut-char #:make-simple-buffer
    ))
