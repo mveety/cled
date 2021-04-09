@@ -8,8 +8,11 @@
 (defclass buffer (port command-table)
   ((type :initform 'buffer)
    (type-string :initform "buffer")
+   (manager-id :initform nil :initarg :manager-id)
    (name :initform "unnamed" :initarg :name)
-   (thread :initform nil :initarg :thread)))
+   (thread :initform nil :initarg :thread))
+  (:default-initargs
+   :manager-id (string (gensym "BUFFER"))))
 
 (defvar *buffer-types* nil)
 
@@ -28,6 +31,10 @@
 (defgeneric (setf buffer-name) (val buf)
   (:method (val (buf buffer))
 	(setf (slot-value buf 'name) val)))
+
+(defgeneric buffer-id (buf)
+  (:method ((buf buffer))
+	(slot-value buf 'manager-id)))
 
 (defun make-buffer (type name &rest args)
   (let ((res (assoc type *buffer-types*)))

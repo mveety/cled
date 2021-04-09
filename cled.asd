@@ -10,7 +10,7 @@
   :description "Common Lisp text editor"
   :license "BSD"
   :version "0"
-  :depends-on (:alexandria :split-sequence) ;;:croatoan)
+  :depends-on (:alexandria :split-sequence :chanl) ;;:croatoan)
   :serial t
   :components ((:file "dlist")
 			   (:file "package")
@@ -19,5 +19,6 @@
 			   (:file "textbuf")
 			   (:file "textbuf-tools")
 			   (:file "buffer")
+			   (:file "buffer-manager")
 			   (:file "simple-buffer")
 			   ))

@@ -22,7 +22,10 @@
    #:line-list-to-strings #:line-list-to-chars #:merge-lines #:split-line
    ;; buffer
    #:*buffer-types* #:make-buffer #:define-buffer-type #:buffer
-   #:buffer-type #:buffer-type-string #:buffer-name
+   #:buffer-type #:buffer-type-string #:buffer-name #:buffer-id
+   ;; quick and dirty buffer management
+   #:*managed-buffers* #:buffer-name-key-exists #:buffer-id-key-exists
+   #:quick-get-buffer #:manage-buffer #:unmanage-buffer #:all-managed-buffers
    ;; simple-buffer
    #:simple-buffer #:*simple-buffer-cmd-template*
    #:buffer-dirty-p #:set-buffer-dirty #:unset-buffer-dirty #:get-buffer-update
