@@ -18,4 +18,5 @@
 			   (:file "cmdproc")
 			   (:file "textbuf")
 			   (:file "textbuf-tools")
+			   (:file "buffer")
 			   ))
