@@ -55,9 +55,9 @@
 			(if (= nargs (length args))
 				(run-command-1 cmd args)
 				(list :status :args-error :returns nil))
-			(list :status nil :returns
-				  (if (equal nargs t)
-					  (run-command-1 cmd args)
+			(if (equal nargs t)
+				(run-command-1 cmd args)
+				(list :status nil :returns
 					  (if (not (getf cmd :prepend))
 						  (funcall (getf cmd :fun))
 						  (funcall (getf cmd :fun) (getf cmd :prepend)))))))))
