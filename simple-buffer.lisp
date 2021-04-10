@@ -10,6 +10,8 @@
    (type-string :initform "simple-buffer")
    (lock :initform nil :initargs :lock)
    (dirty :initform t) ;; has the buffer changed since last update
+   (last-line :initform 0)
+   (last-nlines :initform 0)
    (no-update-if-clean :initform t) ;; if set, only do a full update if dirty
    (owning-window :initform nil) ;; the window that owns the buffer
    (visible :initform nil))) ;; is the buffer visible
@@ -65,17 +67,21 @@
   (setf (slot-value buf 'dirty) nil))
 
 (defmethod get-buffer-update ((buf simple-buffer) start length &key (full nil) (initial nil))
-  (with-slots (dirty no-update-if-clean) buf
+  (with-slots (dirty no-update-if-clean last-line last-nlines) buf
 	(let ((cursor-pos (get-dot buf)))
 	  (if (and (not dirty)
 			   no-update-if-clean
 			   (not full)
-			   (not initial))
+			   (not initial)
+			   (equal last-line start)
+			   (equal last-nlines length))
 		  (list '(:dot) cursor-pos nil)
 		  (prog1
 			  (list '(:dot :lines)
 					cursor-pos
 					(line-list-to-chars (get-n-lines buf start length nil)))
+			(setf last-line start
+				  last-nlines length)
 			(unset-buffer-dirty buf))))))
 
 (defmethod set-buffer-owner ((buf simple-buffer) win)
