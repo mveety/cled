@@ -36,6 +36,7 @@
 (defgeneric show-buffer (buf)) ;; :visible
 (defgeneric hide-buffer (buf)) ;; :hidden
 (defgeneric buffer-nlines (buf)) ;; :nlines
+(defgeneric buffer-linelen (buf)) ;; :linelen
 
 ;;; cursor movement
 (defgeneric cursor-up (buf &optional repeat)) ;; :cursor-up [n] -> t,nil
@@ -101,6 +102,9 @@
 
 (defmethod buffer-nlines ((buf simple-buffer))
   (dl-length buf))
+
+(defmethod buffer-linelen ((buf simple-buffer))
+  (line-length buf))
 
 (defmethod cursor-up ((buf simple-buffer) &optional (repeat 1))
   (let ((cur-dot nil))
@@ -205,6 +209,7 @@
 (defcmd-buf :visible #'show-buffer)
 (defcmd-buf :hidden #'hide-buffer)
 (defcmd-buf :nlines #'buffer-nlines)
+(defcmd-buf :linelen #'buffer-linelen)
 
 (defcmd-buf :cursor-up #'cursor-up t)
 (defcmd-buf :cursor-down #'cursor-down t)

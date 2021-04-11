@@ -83,7 +83,7 @@
 				  ;; the default function is if you need to send an unhandled command down
 				  ;; the chain. This means we just pass the straight return values to the
 				  ;; caller.
-				  (funcall default-function tmpmsg)
+				  (funcall default-function msgdata)
 				  (reply tmpmsg (list :status :unknown-command :returns nil))))))))
 
 (defmethod sendcmd ((p port) name &rest args)
