@@ -192,4 +192,5 @@
 		  (bt:make-thread (lambda ()
 							(window-process newwin))
 						  :name (concatenate 'string "window-thread: " name)))
+	(noreturn-sendcmd buffer :set-owner newwin) ;; be sure to tell the buffer who's problem it is
 	newwin))
