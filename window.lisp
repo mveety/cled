@@ -13,12 +13,13 @@
    (curcol :initform 0 :initarg :curcol)
    (wincurline :initform 0)
    (wincurcol :initform 0)
-   (topline :initform 0 :initarg :topline)
+   (topline :initform 1 :initarg :topline)
    (lines :initform 0 :initarg :lines)
    (cols :initform 0 :initarg :cols)
    (buffer :initform nil :initarg :buffer)
    (buf-data :initform nil)
-   (wind-data :initform nil))
+   (wind-data :initform nil)
+   (line-offset-data :initform nil))
   (:default-initargs
    :manager-id (string (gensym "WINDOW"))))
 
@@ -67,26 +68,32 @@
 			t)))))
 
 (defmethod format-window-data ((win window))
-  (with-slots (lines cols buf-data wind-data) win
+  (with-slots (lines cols buf-data wind-data line-offset-data) win
 	(let ((new-wind-data nil)
+		  (new-line-offset-data)
 		  (cur-line nil)
 		  (curx 0)
 		  (cury 0))
 	  (dolist (line buf-data)
 		(when (< cury lines)
+		  (push cury new-line-offset-data)
 		  (dolist (c line)
 			(push c cur-line)
 			(incf curx)
 			(when (>= curx cols)
 			  (push (reverse cur-line) new-wind-data)
+			  (incf cury)
 			  (setf cur-line nil
-					curx 0)))
+					curx 0))
+			)
 		  (when (not (null cur-line))
 			(push (reverse cur-line) new-wind-data))
 		  (setf cur-line nil
 				curx 0)
-		  (incf cury)))
-	  (setf wind-data (reverse new-wind-data)))))
+		  (incf cury)
+		  ))
+	  (setf wind-data (reverse new-wind-data)
+			line-offset-data (reverse new-line-offset-data)))))
 
 (defmethod scroll-down ((win window))
   (with-slots (topline buffer lines) win
@@ -115,13 +122,18 @@
 
 (defmethod update-window-cursor-location ((win window))
   (with-slots (buffer lines cols curline curcol
-			   wincurline wincurcol) win
+			   wincurline wincurcol line-offset-data
+			   topline) win
 	;; wincurline is relative to the top left corner of the window
-	(if (> curcol cols)
-		(setf wincurline (mod (1+ curline) lines)
-			  wincurcol 0)
-		(setf wincurline (mod curline lines)
-			  wincurcol curcol))))
+	(let* (;;(icurline (if (= curline 0) curline (1- curline)))
+		   (icurcol (if (= curcol 0) curcol (1- curcol)))
+		   (rline (- curline topline)))
+	  (setf wincurline (nth rline line-offset-data))
+	  (if (> icurcol cols)
+		  (setf wincurline (+ (mod icurcol cols) wincurline)
+				wincurcol 0)
+		  (setf wincurcol icurcol))
+	  )))
 
 (defmethod win-cursor-up ((win window))
   (with-slots (curline curcol topline lines buffer) win
@@ -138,7 +150,7 @@
 	(let ((curdot (getrval (sendcmd buffer :get-cursor))))
 	  (setf curline (car curdot)
 			curcol (cadr curdot))
-	  (when (> curline (+ topline lines))
+	  (when (> curline (+ (1- topline) lines))
 		(scroll-down win)))))
 
 (defmethod get-win-update ((win window))
