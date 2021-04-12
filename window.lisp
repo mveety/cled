@@ -38,6 +38,8 @@
 (defgeneric format-window-data (win))
 (defgeneric scroll-down (win))
 (defgeneric scroll-up (win))
+(defgeneric page-down (win))
+(defgeneric page-up (win))
 (defgeneric update-window-cursor-location (win))
 (defgeneric win-cursor-up (win))
 (defgeneric win-cursor-down (win))
@@ -84,44 +86,42 @@
 		  (setf cur-line nil
 				curx 0)
 		  (incf cury)))
-	  (setf wind-data new-wind-data))))
-
-;; this cursor control mess needs to be refactored
+	  (setf wind-data (reverse new-wind-data)))))
 
 (defmethod scroll-down ((win window))
-  (with-slots (curline curcol topline buffer lines) win
+  (with-slots (topline buffer lines) win
 	(let ((nlines (getrval (sendcmd buffer :nlines)))
-		  (newtopline (+ curline (/ lines 2))))
-	  (unless (< nlines lines) ;; if there's no need to scroll, do nothing
-		(setf topline newtopline)
-		(when (> topline nlines)
-		  (setf topline (1- nlines)))
-		(when (< curline topline)
-		  (setf curline (+ curline (- topline curline)))
-		  (sendmsg buffer :set-cursor curline curcol))))))
+		  (newtopline (1+ topline)))
+	  (if (not (>= newtopline (1- nlines)))
+		  (setf topline newtopline)
+		  (setf topline (1- nlines))))))
 
 (defmethod scroll-up ((win window))
-  (with-slots (curline curcol topline buffer lines) win
-	(let ((nlines (getrval (sendcmd buffer :nlines)))
-		  (newtopline (- curline (/ lines 2))))
-	  (unless (< nlines lines)
-		(setf topline newtopline)
-		(when (<= topline 0)
-		  (setf topline 1))
-		(when (> curline (+ topline lines))
-		  (setf curline (- curline (- (+ topline lines) curline)))
-		  (sendmsg buffer :set-cursor curline curcol))))))
+  (with-slots (topline buffer lines) win
+	(let ((newtopline (1- topline)))
+	  (if (not (<= newtopline 1))
+		  (setf topline newtopline)
+		  (setf topline 1)))))
+
+(defmethod page-down ((win window))
+  (with-slots (lines) win
+	(dotimes (x lines)
+	  (scroll-down win))))
+
+(defmethod page-up ((win window))
+  (with-slots (lines) win
+	(dotimes (x lines)
+	  (scroll-up win))))
 
 (defmethod update-window-cursor-location ((win window))
   (with-slots (buffer lines cols curline curcol
 			   wincurline wincurcol) win
-	(let ((linelen (getrval (sendmsg buffer :linelen))))
 	  (when (> curcol cols)
 		(setf wincurline (1+ curline)
-			  windcurcol 0))
+			  wincurcol 0))
 	  (when (> wincurline lines)
 		(scroll-down win) ;; i'm assuming the cursor won't move
-		(update-window-cursor-location win)))))
+		(update-window-cursor-location win))))
 
 (defmethod win-cursor-up ((win window))
   (with-slots (curline curcol topline lines buffer) win
@@ -152,7 +152,7 @@
 
 (defmethod window-resize ((win window) nlines ncols)
   (with-slots (lines cols) win
-	(setf lines nliens
+	(setf lines nlines
 		  cols ncols)))
 
 ;;;;;; command handling for windows ;;;;;;
