@@ -60,8 +60,8 @@
 		  nil
 		  (progn
 			(when (member :dot (car buf-update))
-			  (setf curcol (car (cadr buf-update))
-					curline (cadr (cadr buf-update))))
+			  (setf curline (car (cadr buf-update))
+					curcol (cadr (cadr buf-update))))
 			(when (member :lines (car buf-update))
 			  (setf buf-data (caddr buf-update)))
 			t)))))
@@ -116,12 +116,12 @@
 (defmethod update-window-cursor-location ((win window))
   (with-slots (buffer lines cols curline curcol
 			   wincurline wincurcol) win
-	  (when (> curcol cols)
-		(setf wincurline (1+ curline)
-			  wincurcol 0))
-	  (when (> wincurline lines)
-		(scroll-down win) ;; i'm assuming the cursor won't move
-		(update-window-cursor-location win))))
+	;; wincurline is relative to the top left corner of the window
+	(if (> curcol cols)
+		(setf wincurline (mod (1+ curline) lines)
+			  wincurcol 0)
+		(setf wincurline (mod curline lines)
+			  wincurcol curcol))))
 
 (defmethod win-cursor-up ((win window))
   (with-slots (curline curcol topline lines buffer) win
@@ -145,10 +145,12 @@
   (update-window-data win)
   (format-window-data win)
   (update-window-cursor-location win)
-  (with-slots (wind-data wincurline wincurcol) win
+  (with-slots (wind-data wincurline wincurcol lines) win
 	(list '(:dot :lines)
 		  (list wincurline wincurcol)
-		  wind-data)))
+		  (if (> (length wind-data) lines)
+			  (subseq wind-data 0 lines)
+			  wind-data))))
 
 (defmethod window-resize ((win window) nlines ncols)
   (with-slots (lines cols) win
@@ -164,6 +166,8 @@
 	 :nargs ,nargs
 	 :object t))
 
+(defcmd-win :scroll-up #'scroll-up)
+(defcmd-win :scroll-down #'scroll-down)
 (defcmd-win :cursor-up #'win-cursor-up)
 (defcmd-win :cursor-down #'win-cursor-down)
 (defcmd-win :window-update #'get-win-update)
@@ -172,7 +176,10 @@
 (defun window-process (win)
   (with-slots (buffer) win
 	(labels ((default-function (msgdata)
-			   (message buffer msgdata)))
+			   (let ((rval (message buffer msgdata)))
+				 (if (null (cadr rval))
+					 (list :status :failed-reply :returns nil)
+					 (car rval)))))
 	  (run-table win win
 				 :default-function #'default-function
 				 :end-command :end-command)
