@@ -27,3 +27,15 @@
 							 (:file "kbdevent")
 							 ))
 			   ))
+
+(asdf:defsystem cled/simple-view
+  :author "Matthew Veety <mveety@gmail.com"
+  :description "Common Lisp version of more?"
+  :license "BSD"
+  :version "0"
+  :depends-on (:alexandria :cl-charms :cled)
+  :serial t
+  :components ((:module "simple-view"
+				:components ((:file "package")
+							 ))
+			   ))
