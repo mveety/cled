@@ -29,7 +29,7 @@
 			   ))
 
 (asdf:defsystem cled/simple-view
-  :author "Matthew Veety <mveety@gmail.com"
+  :author "Matthew Veety <mveety@gmail.com>"
   :description "Common Lisp version of more?"
   :license "BSD"
   :version "0"
