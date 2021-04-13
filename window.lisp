@@ -9,16 +9,16 @@
   ((name :initform "unamed window" :initarg :name)
    (manager-id :initform nil :initarg :manager-id)
    (thread :initform nil)
-   (curline :initform 0 :initarg :curline)
-   (curcol :initform 0 :initarg :curcol)
-   (wincurline :initform 0)
-   (wincurcol :initform 0)
-   (topline :initform 1 :initarg :topline)
-   (lines :initform 0 :initarg :lines)
-   (cols :initform 0 :initarg :cols)
-   (buffer :initform nil :initarg :buffer)
-   (buf-data :initform nil)
-   (wind-data :initform nil)
+   (curline :initform 0 :initarg :curline) ;; buffer native dot
+   (curcol :initform 0 :initarg :curcol) ;; part of the above
+   (wincurline :initform 0) ;; terminal native cursor location
+   (wincurcol :initform 0)  ;; part of the above
+   (topline :initform 1 :initarg :topline) ;; top line shown in the buffer
+   (lines :initform 0 :initarg :lines) ;; window height
+   (cols :initform 0 :initarg :cols) ;; window width
+   (buffer :initform nil :initarg :buffer) ;; backing buffer
+   (buf-data :initform nil) ;; fetched buffer data
+   (wind-data :initform nil) ;; processed window data
    (line-offset-data :initform nil))
   (:default-initargs
    :manager-id (string (gensym "WINDOW"))))
@@ -136,7 +136,7 @@
 	  )))
 
 (defmethod win-cursor-up ((win window))
-  (with-slots (curline curcol topline lines buffer) win
+  (with-slots (curline curcol topline lines buffer cols) win
 	(sendcmd buffer :cursor-up)
 	(let ((curdot (getrval (sendcmd buffer :get-cursor))))
 	  (setf curline (car curdot)
@@ -154,10 +154,17 @@
 		(scroll-down win)))))
 
 (defmethod get-win-update ((win window))
-  (update-window-data win)
-  (format-window-data win)
-  (update-window-cursor-location win)
-  (with-slots (wind-data wincurline wincurcol lines) win
+  (with-slots (buffer topline curline curcol lines
+			   wind-data wincurline wincurcol) win
+	(update-window-data win)
+	(when (< curline topline)
+	  (sendcmd buffer :set-cursor topline curcol)
+	  (update-window-data win))
+	(when (>= curline (+ (1- topline) lines))
+	  (sendcmd buffer :set-cursor (+ (1- topline) lines) curcol)
+	  (update-window-data win))
+	(format-window-data win)
+	(update-window-cursor-location win)
 	(list '(:dot :lines)
 		  (list wincurline wincurcol)
 		  (if (> (length wind-data) lines)
@@ -192,6 +199,8 @@
 				 (if (null (cadr rval))
 					 (list :status :failed-reply :returns nil)
 					 (car rval)))))
+	  ;; step one is to initialize the buffer to something sane
+	  (sendcmd buffer :set-cursor 1 1)
 	  (run-table win win
 				 :default-function #'default-function
 				 :end-command :end-command)
