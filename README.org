@@ -1,0 +1,12 @@
+* Common Lisp Text Editor
+  Definite work-in-progress
+
+
+  The idea behind this editor is to make an extremely modular text editor
+  framework. Right now, it's rather rough and ready because it's not really
+  designed as such and, really, didn't even start as a text editor. Right
+  now the guts (~CLED-CORE~) are sorta fleshed out and sorta work (at least
+  enough to start really debugging and testing things), but there is no
+  interface, is very light by way of features, and is of dubious
+  quality. Eventually I hope to make it a bit better and a bit more
+  functional, but will never replace real editors.
