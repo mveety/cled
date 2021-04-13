@@ -27,12 +27,6 @@
 (defun kbd (&rest key-names)
   (mapcar #'get-code-by-name key-names))
 
-(defun modifier (key-name)
-  (if (and (find #\- key-name)
-		   (not (string= key-name "-")))
-	  (subseq key-name 0 1)
-	  nil))
-
 (defkey "C-@"       0)
 (loop for code from 1 below 27
 	  do (let ((schar (string (code-char (+ 96 code)))))

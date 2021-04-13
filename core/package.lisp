@@ -34,4 +34,12 @@
    #:set-cursor #:get-cursor
    #:buffer-backspace #:buffer-insert-char #:buffer-tab #:buffer-newline
    #:buffer-space #:buffer-copy-char #:buffer-cut-char #:make-simple-buffer
+   ;; window
+   #:scroll-up #:scroll-down #:window-update #:window-resize
+   #:window-process #:make-window
+   ;; keyboard utils
+   #:key-modifier
+   ;; keyboard events
+   #:kbd-event-table #:define-kbd-event #:define-default-kbd-event #:get-kbd-event
+   #:generate-kbd-event #:send-kbd-event #:make-kbd-event-table
    ))
