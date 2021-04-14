@@ -6,13 +6,15 @@
 (in-package :cled-core)
 
 (defclass port ()
-  ((channel :initform nil :initarg :channel))
+  ((channel :initform nil :initarg :channel)
+   (inflight-message :initform nil))
   (:default-initargs
    :channel (make-instance 'chanl:channel)))
 
 (defclass msg ()
   ((payload :initform nil :initarg :payload)
-   (reply :initform nil :initarg :reply)))
+   (reply :initform nil :initarg :reply)
+   (inflight-port :initform nil)))
 
 (defgeneric sendmsg (p data &key reply)
   (:documentation "Send a message over a port, returning the receipt"))
@@ -28,6 +30,12 @@
 
 (defgeneric waitformsg (p)
   (:documentation "Wait to recieve a message"))
+
+(defgeneric message-in-flight-p (p)
+  (:documentation "Check to see if there is a message that has been recv'd but not replied to"))
+
+(defgeneric get-in-flight-message (p)
+  (:documentation "Get the in flight message"))
 
 (defun return-new-chan (a)
   (if a
@@ -59,11 +67,28 @@
 		nil)))
 
 (defmethod reply ((m msg) data &key (blockp t))
-  (with-slots (reply) m
-	(if (null reply)
-		nil
-		(chanl:send reply data :blockp blockp))))
+  (with-slots (reply inflight-port) m
+	(prog1
+		(if (null reply)
+			nil
+			(chanl:send reply data :blockp blockp))
+	  (setf (slot-value inflight-port 'inflight-message) nil))))
 
 (defmethod waitformsg ((p port))
-  (with-slots (channel) p
-	(chanl:recv channel)))
+  (with-slots (channel inflight-message) p
+	(let ((msg (chanl:recv channel)))
+	  (setf inflight-message msg)
+	  (setf (slot-value msg 'inflight-port) p)
+	  msg)))
+
+(defmethod message-in-flight-p ((p port))
+  (with-slots (inflight-message) p
+	(if (not (null inflight-message))
+		t
+		nil)))
+
+(defmethod get-in-flight-message ((p port))
+  (with-slots (inflight-message) p
+	(prog1
+		inflight-message
+	  (setf inflight-message nil))))

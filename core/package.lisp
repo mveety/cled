@@ -11,7 +11,8 @@
    #:stop-process #:delete-process
    ;; message passing bits
    #:port #:msg #:sendmsg #:getreply
-   #:message #:reply #:waitformsg
+   #:message #:reply #:waitformsg #:message-in-flight-p
+   #:get-in-flight-message
    ;; message passing event loop
    #:add-command #:command-exists #:find-command #:del-command
    #:run-command #:run-table #:sendcmd #:get-command-list
