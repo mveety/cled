@@ -15,6 +15,7 @@
   :components ((:file "dlist")
 			   (:module "core"
 				:components ((:file "package")
+							 (:file "proc")
 							 (:file "message")
 							 (:file "cmdproc")
 							 (:file "textbuf")

@@ -229,17 +229,14 @@
 
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
 
-(defun simple-buffer-process (buf)
+(defmethod proc-entry ((buf simple-buffer))
   (run-table buf buf :end-command :end-command))
 
 (defun make-simple-buffer (name &rest args &key &allow-other-keys)
   (declare (ignore args))
   (let ((newbuf (make-instance 'simple-buffer :name name)))
 	(add-template-to-cmd-table newbuf *simple-buffer-cmd-template* newbuf)
-	(setf (slot-value newbuf 'thread)
-		  (bt:make-thread (lambda ()
-							(simple-buffer-process newbuf))
-						  :name (concatenate 'string "buffer-thread: " name)))
+	(start-process newbuf)
 	newbuf))
 
 (define-buffer-type 'simple-buffer #'make-simple-buffer)

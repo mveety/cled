@@ -6,6 +6,9 @@
 (defpackage :cled-core
   (:use :cl :dlist :alexandria :split-sequence)
   (:export
+   ;; process management
+   #:process #:proc-entry #:proc-exit #:start-process
+   #:stop-process #:delete-process
    ;; message passing bits
    #:port #:msg #:sendmsg #:getreply
    #:message #:reply #:waitformsg

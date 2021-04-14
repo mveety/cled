@@ -5,11 +5,8 @@
 
 (in-package :cled-core)
 
-(defclass window (port command-table)
-  ((name :initform "unamed window" :initarg :name)
-   (manager-id :initform nil :initarg :manager-id)
-   (thread :initform nil)
-   (curline :initform 0 :initarg :curline) ;; buffer native dot
+(defclass window (process port command-table)
+  ((curline :initform 0 :initarg :curline) ;; buffer native dot
    (curcol :initform 0 :initarg :curcol) ;; part of the above
    (wincurline :initform 0) ;; terminal native cursor location
    (wincurcol :initform 0)  ;; part of the above
@@ -192,7 +189,7 @@
 (defcmd-win :window-update #'get-win-update)
 (defcmd-win :window-resize #'window-resize 2)
 
-(defun window-process (win)
+(defmethod proc-entry ((win window))
   (with-slots (buffer) win
 	(labels ((default-function (msgdata)
 			   (let ((rval (message buffer msgdata)))
@@ -216,9 +213,6 @@
 									   :lines lines
 									   :cols cols)))
 	(add-template-to-cmd-table newwin *window-cmd-template* newwin)
-	(setf (slot-value newwin 'thread)
-		  (bt:make-thread (lambda ()
-							(window-process newwin))
-						  :name (concatenate 'string "window-thread: " name)))
+	(start-process newwin)
 	(noreturn-sendcmd buffer :set-owner newwin) ;; be sure to tell the buffer who's problem it is
 	newwin))

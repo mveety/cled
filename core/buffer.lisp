@@ -5,12 +5,9 @@
 
 (in-package :cled-core)
 
-(defclass buffer (port command-table)
+(defclass buffer (process port command-table)
   ((type :initform 'buffer)
-   (type-string :initform "buffer")
-   (manager-id :initform nil :initarg :manager-id)
-   (name :initform "unnamed" :initarg :name)
-   (thread :initform nil :initarg :thread))
+   (type-string :initform "buffer"))
   (:default-initargs
    :manager-id (string (gensym "BUFFER"))))
 
