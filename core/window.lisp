@@ -6,7 +6,9 @@
 (in-package :cled-core)
 
 (defclass window (process port command-table)
-  ((curline :initform 0 :initarg :curline) ;; buffer native dot
+  ((type :initform 'window)
+   (type-string :initform "window")
+   (curline :initform 0 :initarg :curline) ;; buffer native dot
    (curcol :initform 0 :initarg :curcol) ;; part of the above
    (wincurline :initform 0) ;; terminal native cursor location
    (wincurcol :initform 0)  ;; part of the above
