@@ -232,6 +232,12 @@
 (defmethod proc-entry ((buf simple-buffer))
   (run-table buf buf :end-command :end-command))
 
+(defmethod proc-exit ((buf simple-buffer))
+  (when (message-in-flight-p buf)
+	(reply (get-in-flight-message buf)
+		   (list :status :process-error :returns nil)
+		   :blockp nil)))
+
 (defun make-simple-buffer (name &rest args &key &allow-other-keys)
   (declare (ignore args))
   (let ((newbuf (make-instance 'simple-buffer :name name)))

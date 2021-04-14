@@ -208,6 +208,12 @@
 	  (sendcmd buffer :hidden)
 	  nil)))
 
+(defmethod proc-exit ((win window))
+  (when (message-in-flight-p win)
+	(reply (get-in-flight-message win)
+		   (list :status :process-error :returns nil)
+		   :blockp nil)))
+
 (defun make-window (name buffer lines cols &rest args &key &allow-other-keys)
   (declare (ignore args))
   (let ((newwin (make-instance 'window :name name
