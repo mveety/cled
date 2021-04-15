@@ -8,9 +8,8 @@
 
 (in-package :cled)
 
-;;; the name references what's stored, not the key.
-(defparameter *keynames* (make-hash-table :test 'equal))
-(defparameter *keycodes* (make-hash-table))
+(defparameter *keynames* (make-hash-table))
+(defparameter *keycodes* (make-hash-table :test 'equal))
 
 (defun defkey (name code)
   (setf (gethash name *keycodes*) code)
@@ -58,3 +57,18 @@
 	   (defkey scode (+ #o410 code))
 	   (when (> code 0)
 	     (defkey (concatenate 'string "S-" scode) (+ #o424 code)))))
+
+(defun get-key (getch-fun)
+  (flet ((getc () (funcall getch-fun)))
+    (let ((c (getc)))
+      (case c
+	(#\Esc (if (equal (getc) #\[)
+		   (case (getc)
+		     (#\A (get-code-by-name "up"))
+		     (#\B (get-code-by-name "down"))
+		     (#\C (get-code-by-name "right"))
+		     (#\D (get-code-by-name "left")))
+		   nil))
+	(#\Rubout (get-code-by-name "backspace"))
+	(#\Newline (get-code-by-name "C-j")) ;; newline is C-j
+	(t c)))))
