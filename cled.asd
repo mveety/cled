@@ -39,5 +39,7 @@
   :serial t
   :components ((:module "simple-view"
 				:components ((:file "package")
+							 (:file "keyboard")
+							 (:file "simple-view")
 							 ))
 			   ))

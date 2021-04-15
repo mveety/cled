@@ -6,7 +6,7 @@
 ;;; a lot of this basic design and all of the codes are cribbed from
 ;;; lem. 
 
-(in-package :cled-core)
+(in-package :cled)
 
 ;;; the name references what's stored, not the key.
 (defparameter *keynames* (make-hash-table :test 'equal))
