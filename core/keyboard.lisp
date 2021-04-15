@@ -6,7 +6,7 @@
 ;;; a lot of this basic design and all of the codes are cribbed from
 ;;; lem. 
 
-(in-package :cled)
+(in-package :cled-core)
 
 (defparameter *keynames* (make-hash-table))
 (defparameter *keycodes* (make-hash-table :test 'equal))
@@ -24,7 +24,10 @@
     name))
 
 (defun kbd (&rest key-names)
-  (mapcar #'get-code-by-name key-names))
+  (let ((klist (mapcar #'get-code-by-name key-names)))
+    (if (equal (length klist) 1)
+	(car klist)
+	klist)))
 
 (defkey "C-@"       0)
 (loop for code from 1 below 27
@@ -51,6 +54,7 @@
 (defkey "C-right"   560)
 (defkey "home"      #o406)
 (defkey "backspace" #o407)
+(defkey "enter" 10)
 
 (loop for code from 0 below 13
       do (let ((scode (format nil "f~A" code)))

@@ -27,6 +27,7 @@
 			     (:file "window")
 			     (:file "kbdutil")
 			     (:file "kbdevent")
+			     (:file "keyboard")
 			     ))
 	       ))
 
@@ -39,7 +40,6 @@
   :serial t
   :components ((:module "simple-view"
 		:components ((:file "package")
-			     (:file "keyboard")
 			     (:file "simple-view")
 			     ))
 	       ))
