@@ -10,6 +10,7 @@
    (type-string :initform "process")
    (manager-id :initform nil :initarg :manager-id)
    (name :initform "unamed" :initarg :name)
+   (restartable :initform nil)
    (thread :initform nil :initarg :thread))
   (:default-initargs
    :manager-id (string (gensym "PROCESS"))))
@@ -46,11 +47,12 @@
   nil)
 
 (defmethod start-process ((proc process))
-  (with-slots (thread manager-id type-string name) proc
+  (with-slots (thread manager-id type-string name restartable) proc
 	(if (and (not (null (gethash manager-id *all-processes*)))
 			 (null (gethash manager-id *running-processes*)))
 		(progn
-		  (setf thread (bt:make-thread
+		  (setf restartable t
+				thread (bt:make-thread
 						(lambda () (unwind-protect
 										(progn
 										  (add-hash *running-processes* manager-id proc)
@@ -62,8 +64,9 @@
 		nil)))
 
 (defmethod stop-process ((proc process))
-  (with-slots (thread manager-id) proc
+  (with-slots (thread manager-id restartable) proc
 	(rem-hash *running-processes* manager-id)
+	(setf restartable nil)
 	(when (bt:thread-alive-p thread)
 	  (bt:destroy-thread thread))))
 

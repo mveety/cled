@@ -212,7 +212,8 @@
   (when (message-in-flight-p win)
 	(reply (get-in-flight-message win)
 		   (list :status :process-error :returns nil)
-		   :blockp nil)))
+		   :blockp nil))
+  (alert-reaper win))
 
 (defun make-window (name buffer lines cols &rest args &key &allow-other-keys)
   (declare (ignore args))

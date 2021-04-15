@@ -13,6 +13,9 @@
    #:port #:msg #:sendmsg #:getreply
    #:message #:reply #:waitformsg #:message-in-flight-p
    #:get-in-flight-message
+   ;; the grim reaper
+   #:*grim-reaper* #:*reaper-messages* #:start-grim-reaper #:alert-reaper
+   #:stop-reaper
    ;; message passing event loop
    #:add-command #:command-exists #:find-command #:del-command
    #:run-command #:run-table #:sendcmd #:get-command-list

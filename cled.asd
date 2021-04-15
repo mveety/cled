@@ -17,6 +17,7 @@
 				:components ((:file "package")
 							 (:file "proc")
 							 (:file "message")
+							 (:file "reaper")
 							 (:file "cmdproc")
 							 (:file "textbuf")
 							 (:file "textbuf-tools")

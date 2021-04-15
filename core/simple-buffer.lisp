@@ -236,7 +236,8 @@
   (when (message-in-flight-p buf)
 	(reply (get-in-flight-message buf)
 		   (list :status :process-error :returns nil)
-		   :blockp nil)))
+		   :blockp nil))
+  (alert-reaper buf))
 
 (defun make-simple-buffer (name &rest args &key &allow-other-keys)
   (declare (ignore args))
