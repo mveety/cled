@@ -12,15 +12,15 @@
 (defgeneric move-to (list new-loc)
   (:documentation "Move to a specific location in a line array")
   (:method ((list dlist) new-loc)
-	(with-slots (length (loc dlist::loc)) list
-	  (cond
-		((equal new-loc 0) (dl-head list))
-		((>= new-loc length) (dl-tail list) nil)
-		(t (let ((roffset (- new-loc loc)))
-			 (cond
-			   ((> roffset 0) (dl-nextn list roffset))
-			   ((< roffset 0) (dl-prevn list (abs roffset)))
-			   ((= roffset 0) t))))))))
+    (with-slots (length (loc dlist::loc)) list
+      (cond
+	((equal new-loc 0) (dl-head list))
+	((>= new-loc length) (dl-tail list) nil)
+	(t (let ((roffset (- new-loc loc)))
+	     (cond
+	       ((> roffset 0) (dl-nextn list roffset))
+	       ((< roffset 0) (dl-prevn list (abs roffset)))
+	       ((= roffset 0) t))))))))
 
 (defgeneric set-line-dot (line new-dot))
 (defgeneric line-dot (line))
@@ -28,27 +28,27 @@
 
 (defmethod set-line-dot ((line tb-line) new-dot)
   (if (= (dl-length line) 0)
-	  t
-	  (if (<= new-dot 0)
-		  (progn
-			(setf (slot-value line 'zero-dot) t)
-			(move-to line 0))
-		  (progn
-			(setf (slot-value line 'zero-dot) nil)
-			(move-to line (1- new-dot))))))
+      t
+      (if (<= new-dot 0)
+	  (progn
+	    (setf (slot-value line 'zero-dot) t)
+	    (move-to line 0))
+	  (progn
+	    (setf (slot-value line 'zero-dot) nil)
+	    (move-to line (1- new-dot))))))
 
 (defmethod line-dot ((line tb-line))
   (if (= (dl-loc line) 0)
-	  1
-	  (1+ (dl-loc line))))
+      1
+      (1+ (dl-loc line))))
 
 (defmethod insert-at-line-dot ((line tb-line) char)
   (if (or (= (dl-length line) 0)
-		  (slot-value line 'zero-dot))
-	  (progn
-		(setf (slot-value line 'zero-dot) nil)
-		(dl-push line char))
-	  (dl-insert line char)))
+	  (slot-value line 'zero-dot))
+      (progn
+	(setf (slot-value line 'zero-dot) nil)
+	(dl-push line char))
+      (dl-insert line char)))
 
 (defclass textbuf (dlist)
   ((line-dot :initform 0 :initarg :line-dot)
@@ -84,27 +84,27 @@
 
 (defmethod get-dot ((tbuf textbuf))
   (with-slots (line-dot col-dot) tbuf
-	(setf line-dot (linen tbuf)
-		  col-dot (line-dot (dl-data tbuf)))
-	(list line-dot col-dot)))
+    (setf line-dot (linen tbuf)
+	  col-dot (line-dot (dl-data tbuf)))
+    (list line-dot col-dot)))
 
 (defmethod insert-line ((tbuf textbuf) &key (above nil))
   (if above
-	  (if (= (dl-loc tbuf) 0)
-		  (dl-push tbuf (make-instance 'tb-line))
-		  (progn
-			(dl-prev tbuf)
-			(dl-insert tbuf (make-instance 'tb-line))
-			(dl-next tbuf)))
+      (if (= (dl-loc tbuf) 0)
+	  (dl-push tbuf (make-instance 'tb-line))
 	  (progn
-		(dl-insert tbuf (make-instance 'tb-line))
-		(dl-prev tbuf)))
+	    (dl-prev tbuf)
+	    (dl-insert tbuf (make-instance 'tb-line))
+	    (dl-next tbuf)))
+      (progn
+	(dl-insert tbuf (make-instance 'tb-line))
+	(dl-prev tbuf)))
   (get-dot tbuf))
 
 (defmethod remove-line ((tbuf textbuf))
   (dl-remove tbuf)
   (when (= (dl-length tbuf) 0)
-	(dl-insert tbuf (make-instance 'tb-line)))
+    (dl-insert tbuf (make-instance 'tb-line)))
   (get-dot tbuf))
 
 (defmethod insert-char ((tbuf textbuf) char)
@@ -112,9 +112,9 @@
 
 (defmethod remove-char ((tbuf textbuf))
   (let ((line (dl-data tbuf)))
-	(if (= (dl-length line) 0)
-		nil
-		(dl-remove line))))
+    (if (= (dl-length line) 0)
+	nil
+	(dl-remove line))))
 
 (defmethod get-char ((tbuf textbuf))
   (dl-data (dl-data tbuf)))
@@ -130,24 +130,24 @@
 
 (defmethod print-object ((list textbuf) stream)
   (print-unreadable-object (list stream :type t)
-	(let ((tmplst (dlist::copy-dlist list))
-		  (counter 0)
-		  (curdot (get-dot list)))
-	  (if (> (dl-length tmplst) 0)
-		  (progn
-			(format stream "length: ~A, dot: (~A,~A), data: ("
-					(dl-length tmplst)
-					(car curdot)
-					(cadr curdot))
-			(loop do
-			  (format stream "~S" (dl-data tmplst))
-			  (if (null (dl-next tmplst))
-				  (loop-finish)
-				  (if (< counter (1- *element-printing-limit*))
-					  (format stream " ")
-					  (progn
-						(format stream "...")
-						(loop-finish))))
-			  (incf counter))
-			(format stream ")"))
-		  (format stream "length: 0, data: nil")))))
+    (let ((tmplst (dlist::copy-dlist list))
+	  (counter 0)
+	  (curdot (get-dot list)))
+      (if (> (dl-length tmplst) 0)
+	  (progn
+	    (format stream "length: ~A, dot: (~A,~A), data: ("
+		    (dl-length tmplst)
+		    (car curdot)
+		    (cadr curdot))
+	    (loop do
+	      (format stream "~S" (dl-data tmplst))
+	      (if (null (dl-next tmplst))
+		  (loop-finish)
+		  (if (< counter (1- *element-printing-limit*))
+		      (format stream " ")
+		      (progn
+			(format stream "...")
+			(loop-finish))))
+	      (incf counter))
+	    (format stream ")"))
+	  (format stream "length: 0, data: nil")))))

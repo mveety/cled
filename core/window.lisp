@@ -221,7 +221,7 @@
 									   :buffer buffer
 									   :lines lines
 									   :cols cols)))
-	(add-template-to-cmd-table newwin *window-cmd-template* newwin)
-	(start-process newwin)
-	(noreturn-sendcmd buffer :set-owner newwin) ;; be sure to tell the buffer who's problem it is
-	newwin))
+    (add-template-to-cmd-table newwin *window-cmd-template* newwin)
+    (start-process newwin)
+    (noreturn-sendcmd buffer :set-owner newwin) ;; be sure to tell the buffer who's problem it is
+    newwin))

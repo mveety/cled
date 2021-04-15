@@ -18,19 +18,19 @@
 
 (defun get-code-by-name (name)
   (let ((code (gethash name *keycodes*)))
-	code))
+    code))
 
 (defun get-name-by-code (code)
   (let ((name (gethash code *keynames*)))
-	name))
+    name))
 
 (defun kbd (&rest key-names)
   (mapcar #'get-code-by-name key-names))
 
 (defkey "C-@"       0)
 (loop for code from 1 below 27
-	  do (let ((schar (string (code-char (+ 96 code)))))
-		   (defkey (concatenate 'string "C-" schar) code)))
+      do (let ((schar (string (code-char (+ 96 code)))))
+	   (defkey (concatenate 'string "C-" schar) code)))
 (defkey "escape"    27)
 (defkey "C-\\"      28)
 (defkey "C-]"       29)
@@ -39,8 +39,8 @@
 (defkey "space"     32)
 
 (loop for code from 33 below 127
-	  do (let ((schar (string (code-char code))))
-		   (defkey schar code)))
+      do (let ((schar (string (code-char code))))
+	   (defkey schar code)))
 
 (defkey "down"      #o402)
 (defkey "up"        #o403)
@@ -54,7 +54,7 @@
 (defkey "backspace" #o407)
 
 (loop for code from 0 below 13
-	  do (let ((scode (format nil "f~A" code)))
-		   (defkey scode (+ #o410 code))
-		   (when (> code 0)
-			 (defkey (concatenate 'string "S-" scode) (+ #o424 code)))))
+      do (let ((scode (format nil "f~A" code)))
+	   (defkey scode (+ #o410 code))
+	   (when (> code 0)
+	     (defkey (concatenate 'string "S-" scode) (+ #o424 code)))))

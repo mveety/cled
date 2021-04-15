@@ -39,56 +39,56 @@
 
 (defun return-new-chan (a)
   (if a
-	  (make-instance 'chanl:channel)
-	  nil))
+      (make-instance 'chanl:channel)
+      nil))
 
 (defmethod sendmsg ((p port) data &key (reply t))
   (let ((newmsg (make-instance 'msg
-							   :payload data
-							   :reply (return-new-chan reply))))
-	(chanl:send (slot-value p 'channel) newmsg)
-	newmsg))
+			       :payload data
+			       :reply (return-new-chan reply))))
+    (chanl:send (slot-value p 'channel) newmsg)
+    newmsg))
 
 (defmethod getreply ((m msg) &key (blockp t))
   (with-slots (reply) m
-	(if (null reply)
-		nil
-		(let ((rval (multiple-value-list
-					 (chanl:recv reply
-								 :blockp blockp))))
-		  (if (null (cadr rval))
-			  (list nil nil)
-			  (list (car rval) t))))))
+    (if (null reply)
+	nil
+	(let ((rval (multiple-value-list
+		     (chanl:recv reply
+				 :blockp blockp))))
+	  (if (null (cadr rval))
+	      (list nil nil)
+	      (list (car rval) t))))))
 
 (defmethod message ((p port) data &key (reply t))
   (let ((msg (sendmsg p data :reply reply)))
-	(if reply
-		(getreply msg)
-		nil)))
+    (if reply
+	(getreply msg)
+	nil)))
 
 (defmethod reply ((m msg) data &key (blockp t))
   (with-slots (reply inflight-port) m
-	(prog1
-		(if (null reply)
-			nil
-			(chanl:send reply data :blockp blockp))
-	  (setf (slot-value inflight-port 'inflight-message) nil))))
+    (prog1
+	(if (null reply)
+	    nil
+	    (chanl:send reply data :blockp blockp))
+      (setf (slot-value inflight-port 'inflight-message) nil))))
 
 (defmethod waitformsg ((p port))
   (with-slots (channel inflight-message) p
-	(let ((msg (chanl:recv channel)))
-	  (setf inflight-message msg)
-	  (setf (slot-value msg 'inflight-port) p)
-	  msg)))
+    (let ((msg (chanl:recv channel)))
+      (setf inflight-message msg)
+      (setf (slot-value msg 'inflight-port) p)
+      msg)))
 
 (defmethod message-in-flight-p ((p port))
   (with-slots (inflight-message) p
-	(if (not (null inflight-message))
-		t
-		nil)))
+    (if (not (null inflight-message))
+	t
+	nil)))
 
 (defmethod get-in-flight-message ((p port))
   (with-slots (inflight-message) p
-	(prog1
-		inflight-message
-	  (setf inflight-message nil))))
+    (prog1
+	inflight-message
+      (setf inflight-message nil))))

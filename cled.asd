@@ -13,22 +13,22 @@
   :depends-on (:alexandria :split-sequence :chanl)
   :serial t
   :components ((:file "dlist")
-			   (:module "core"
-				:components ((:file "package")
-							 (:file "proc")
-							 (:file "message")
-							 (:file "reaper")
-							 (:file "cmdproc")
-							 (:file "textbuf")
-							 (:file "textbuf-tools")
-							 (:file "buffer")
-							 (:file "buffer-manager")
-							 (:file "simple-buffer")
-							 (:file "window")
-							 (:file "kbdutil")
-							 (:file "kbdevent")
-							 ))
-			   ))
+	       (:module "core"
+		:components ((:file "package")
+			     (:file "proc")
+			     (:file "message")
+			     (:file "reaper")
+			     (:file "cmdproc")
+			     (:file "textbuf")
+			     (:file "textbuf-tools")
+			     (:file "buffer")
+			     (:file "buffer-manager")
+			     (:file "simple-buffer")
+			     (:file "window")
+			     (:file "kbdutil")
+			     (:file "kbdevent")
+			     ))
+	       ))
 
 (asdf:defsystem cled/simple-view
   :author "Matthew Veety <mveety@gmail.com>"
@@ -38,8 +38,8 @@
   :depends-on (:alexandria :cl-charms :cled)
   :serial t
   :components ((:module "simple-view"
-				:components ((:file "package")
-							 (:file "keyboard")
-							 (:file "simple-view")
-							 ))
-			   ))
+		:components ((:file "package")
+			     (:file "keyboard")
+			     (:file "simple-view")
+			     ))
+	       ))

@@ -7,6 +7,6 @@
 
 (defun key-modifier (key-name)
   (if (and (find #\- key-name)
-		   (not (string= key-name "-")))
-	  (subseq key-name 0 1)
-	  nil))
+	   (not (string= key-name "-")))
+      (subseq key-name 0 1)
+      nil))

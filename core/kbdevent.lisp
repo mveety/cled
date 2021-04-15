@@ -19,31 +19,31 @@
 (defgeneric send-kbd-event (event-table canonical-key port))
 
 (defmethod define-kbd-event ((event-table kbd-event-table) canonical-key event
-							 &key (use-key nil) (use-char nil))
+			     &key (use-key nil) (use-char nil))
   (with-slots (hash-table) event-table
-	(setf (gethash canonical-key hash-table)
-		  (list :event event :use-key use-key :use-char use-char))))
+    (setf (gethash canonical-key hash-table)
+	  (list :event event :use-key use-key :use-char use-char))))
 
 (defmethod define-default-kbd-event ((event-table kbd-event-table) canonical-key event
-									 &key (use-key nil) (use-char nil))
+				     &key (use-key nil) (use-char nil))
   (with-slots (default-event) event-table
-	(setf event-table (list :event event :use-key use-key :use-char use-char))))
+    (setf event-table (list :event event :use-key use-key :use-char use-char))))
 
 (defmethod get-kbd-event ((event-table kbd-event-table) canonical-key)
   (with-slots (hash-table default-event) event-table
-	(let ((event (gethash canonical-key hash-table)))
-	  (if (null event)
-		  default-event
-		  event))))
+    (let ((event (gethash canonical-key hash-table)))
+      (if (null event)
+	  default-event
+	  event))))
 
 (defmethod generate-kbd-event ((event-table kbd-event-table) canonical-key)
   (let ((event (get-kbd-event event-table canonical-key)))
-	(cond
-	  ((getf event :use-key) (list (getf event :event) canonical-key))
-	  ((getf event :use-char) (let* ((slist (coerce canonical-key 'list))
-									 (char (car (last slist)))) ;; the actual char is always last
-								(list (getf event :event) char)))
-	  (t (getf event :event)))))
+    (cond
+      ((getf event :use-key) (list (getf event :event) canonical-key))
+      ((getf event :use-char) (let* ((slist (coerce canonical-key 'list))
+				     (char (car (last slist)))) ;; the actual char is always last
+				(list (getf event :event) char)))
+      (t (getf event :event)))))
 
 (defmethod send-kbd-event ((event-table kbd-event-table) canonical-key (p port))
   (apply #'sendcmd (append (list p) (generate-kbd-event event-table canonical-key))))
