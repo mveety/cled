@@ -40,6 +40,7 @@
   :serial t
   :components ((:module "simple-view"
 		:components ((:file "package")
+			     (:file "vt100")
 			     (:file "simple-view")
 			     ))
 	       ))

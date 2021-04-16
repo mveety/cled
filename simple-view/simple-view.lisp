@@ -29,6 +29,7 @@
 	      (lines nil)
 	      (draw-line 0)
 	      (draw-col 0)
+	      (cur-dot nil)
 	      (cursor-up (get-code-by-name "up"))
 	      (cursor-down (get-code-by-name "down"))
 	      (cursor-left (get-code-by-name "left"))
@@ -44,10 +45,11 @@
 	   (charms:enable-non-blocking-mode charms:*standard-window*)
 	   (charms:clear-window charms:*standard-window*)
 	   (loop named main-loop
-		 for c = (get-key (lambda () (charms:get-char charms:*standard-window* :ignore-error t)))
+		 for c = (get-canonical-key)
 		 do (progn
 		      ;; get window update
 		      (setf update-data (cled-core::getrval (sendcmd *window* :window-update)))
+		      (setf cur-dot (cled-core::getrval (sendcmd *window* :get-cursor)))
 		      (setf cursor-line (car (cadr update-data))
 			    cursor-col (cadr (cadr update-data))
 			    lines (caddr update-data))
@@ -64,8 +66,6 @@
 			  (setf draw-col 0)
 			  (incf draw-line)))
 		      ;; process the input
-		   ;;   (unless (null c)
-		;;	(format t "[ char = \"~A\" ]" c))
 		      (cond
 			((null c) nil)
 			((equal c cursor-up) (sendcmd *window* :cursor-up))
@@ -75,11 +75,14 @@
 			((equal c enter) (sendcmd *window* :newline))
 			((equal c space) (sendcmd *window* :space))
 			((equal c backspace) (sendcmd *window* :backspace))
-			(t (sendcmd *window* :insert c)))
-		      (charms:write-string-at-point charms:*standard-window*
-						    (format nil "draw = (~A, ~A), cursor = (~A, ~A)"
-							    draw-line draw-col cursor-line cursor-col)
-						    1 23)
+			((equal c (kbd "C-x")) (return-from main-loop))
+			(t (sendcmd *window* :insert (code-char c))))
+		      (charms:write-string-at-point
+		       charms:*standard-window*
+		       (format nil "draw = (~A, ~A), cursor = (~A, ~A), dot = (~A, ~A). C-x to quit"
+			       draw-line draw-col cursor-line cursor-col
+			       (car cur-dot) (cadr cur-dot))
+		       1 23)
 		      (setf draw-col 0
 			    draw-line 0)
 		      (charms:move-cursor charms:*standard-window* (1+ cursor-col) cursor-line)
