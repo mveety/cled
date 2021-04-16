@@ -85,7 +85,7 @@
 		       1 23)
 		      (setf draw-col 0
 			    draw-line 0)
-		      (charms:move-cursor charms:*standard-window* (1+ cursor-col) cursor-line)
+		      (charms:move-cursor charms:*standard-window* cursor-col cursor-line)
 		      ))))
     (stop-process *window*)
     (stop-process *buffer*)

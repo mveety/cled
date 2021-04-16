@@ -124,14 +124,16 @@
 	       wincurline wincurcol line-offset-data
 	       topline) win
     ;; wincurline is relative to the top left corner of the window
-    (let* (;;(icurline (if (= curline 0) curline (1- curline)))
-	   (icurcol (if (= curcol 0) curcol (1- curcol)))
-	   (rline (- curline topline)))
+    (let* ((icurcol (if (= curcol 0) curcol (1- curcol)))
+	   (rline (- curline topline))
+	   (linelen (getrval (sendcmd buffer :linelen))))
       (setf wincurline (nth rline line-offset-data))
       (if (> icurcol cols)
 	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
 		wincurcol (mod icurcol cols))
 	  (setf wincurcol icurcol))
+      (when (not (= linelen 0))
+	(1+ wincurcol))
       )))
 
 (defmethod win-cursor-up ((win window))
