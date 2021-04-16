@@ -18,7 +18,8 @@
    (buffer :initform nil :initarg :buffer) ;; backing buffer
    (buf-data :initform nil) ;; fetched buffer data
    (wind-data :initform nil) ;; processed window data
-   (line-offset-data :initform nil))
+   (line-offset-data :initform nil)
+   (shown-lines :initform 0))
   (:default-initargs
    :manager-id (string (gensym "WINDOW"))))
 
@@ -67,15 +68,17 @@
 	    t)))))
 
 (defmethod format-window-data ((win window))
-  (with-slots (lines cols buf-data wind-data line-offset-data) win
+  (with-slots (lines cols buf-data wind-data shown-lines line-offset-data) win
     (let ((new-wind-data nil)
 	  (new-line-offset-data)
 	  (cur-line nil)
+	  (real-lines 0)
 	  (curx 0)
 	  (cury 0))
       (dolist (line buf-data)
 	(when (< cury lines)
 	  (push cury new-line-offset-data)
+	  (incf real-lines)
 	  (dolist (c line)
 	    (push c cur-line)
 	    (incf curx)
@@ -85,13 +88,13 @@
 	      (setf cur-line nil
 		    curx 0))
 	    )
-	  (when (not (null cur-line))
-	    (push (reverse cur-line) new-wind-data))
+	  (push (reverse cur-line) new-wind-data)
 	  (setf cur-line nil
 		curx 0)
 	  (incf cury)
 	  ))
-      (setf wind-data (reverse new-wind-data)
+      (setf shown-lines real-lines
+	    wind-data (reverse new-wind-data)
 	    line-offset-data (reverse new-line-offset-data)))))
 
 (defmethod scroll-down ((win window))
@@ -139,7 +142,7 @@
       )))
 
 (defmethod win-cursor-up ((win window))
-  (with-slots (curline curcol topline lines buffer cols) win
+  (with-slots (curline curcol topline lines buffer cols shown-lines) win
     (sendcmd buffer :cursor-up)
     (let ((curdot (getrval (sendcmd buffer :get-cursor))))
       (setf curline (car curdot)
@@ -148,12 +151,12 @@
 	(scroll-up win)))))
 
 (defmethod win-cursor-down ((win window))
-  (with-slots (curline curcol topline lines buffer) win
+  (with-slots (curline curcol topline lines buffer shown-lines) win
     (sendcmd buffer :cursor-down)
     (let ((curdot (getrval (sendcmd buffer :get-cursor))))
       (setf curline (car curdot)
 	    curcol (cadr curdot))
-      (when (> curline (+ (1- topline) lines))
+      (when (> curline (+ (1- topline) shown-lines))
 	(scroll-down win)))))
 
 (defmethod get-win-update ((win window))
