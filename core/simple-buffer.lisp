@@ -152,13 +152,14 @@
   (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
     (if (not (= (cadr cur-dot) 1))
+	(remove-char buf)
 	(if (slot-value (dl-data buf) 'zero-dot)
 	    (if (= (line-length buf) 0)
 		(remove-line buf)
 		(merge-lines buf (car cur-dot)))
 	    (set-dot buf (car cur-dot)
 		     (line-length buf)))
-	(remove-char buf))))
+	)))
 
 (defmethod buffer-insert-char ((buf simple-buffer) c)
   (set-buffer-dirty buf)
@@ -171,9 +172,13 @@
   (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
     (if (slot-value (dl-data buf) 'zero-dot)
-	(insert-line buf :above t)
+	(progn
+	  (insert-line buf :above t)
+	  (set-dot buf (1+ (car cur-dot)) 0))
 	(if (= (cadr cur-dot) (line-length buf))
-	    (insert-line buf :above nil)
+	    (progn
+	      (insert-line buf :above nil)
+	      (set-dot buf (1+ (car cur-dot)) 0))
 	    (progn
 	      (split-line buf (car cur-dot) (cadr cur-dot))
 	      (set-dot buf (1+ (car cur-dot)) 0))))))
