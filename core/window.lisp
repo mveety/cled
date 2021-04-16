@@ -128,6 +128,8 @@
 	   (rline (- curline topline))
 	   (linelen (getrval (sendcmd buffer :linelen))))
       (setf wincurline (nth rline line-offset-data))
+      (when (null wincurline)
+	(setf wincurline (car (last line-offset-data))))
       (if (> icurcol cols)
 	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
 		wincurcol (mod icurcol cols))

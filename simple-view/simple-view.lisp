@@ -79,7 +79,7 @@
 			(t (sendcmd *window* :insert (code-char c))))
 		      (charms:write-string-at-point
 		       charms:*standard-window*
-		       (format nil "draw = (~A, ~A), cursor = (~A, ~A), dot = (~A, ~A). C-x to quit"
+		       (format nil "draw = (~A, ~A), cursor = (~A, ~A), dot = (~A, ~A). C-x to quit             "
 			       draw-line draw-col cursor-line cursor-col
 			       (car cur-dot) (cadr cur-dot))
 		       1 23)
