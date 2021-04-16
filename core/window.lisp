@@ -129,8 +129,8 @@
 	   (rline (- curline topline)))
       (setf wincurline (nth rline line-offset-data))
       (if (> icurcol cols)
-	  (setf wincurline (+ (mod icurcol cols) wincurline)
-		wincurcol 0)
+	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
+		wincurcol (mod icurcol cols))
 	  (setf wincurcol icurcol))
       )))
 
