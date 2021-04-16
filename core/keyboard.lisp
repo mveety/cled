@@ -3,6 +3,7 @@
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
 
+;;; THE UNIVERSAL KEYCODES
 ;;; a lot of this basic design and all of the codes are cribbed from
 ;;; lem. 
 
@@ -61,18 +62,3 @@
 	   (defkey scode (+ #o410 code))
 	   (when (> code 0)
 	     (defkey (concatenate 'string "S-" scode) (+ #o424 code)))))
-
-(defun get-key (getch-fun)
-  (flet ((getc () (funcall getch-fun)))
-    (let ((c (getc)))
-      (case c
-	(#\Esc (if (equal (getc) #\[)
-		   (case (getc)
-		     (#\A (get-code-by-name "up"))
-		     (#\B (get-code-by-name "down"))
-		     (#\C (get-code-by-name "right"))
-		     (#\D (get-code-by-name "left")))
-		   nil))
-	(#\Rubout (get-code-by-name "backspace"))
-	(#\Newline (get-code-by-name "C-j")) ;; newline is C-j
-	(t c)))))
