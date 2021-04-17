@@ -39,15 +39,14 @@
 	      (backspace (get-code-by-name "backspace"))
 	      (enter (get-code-by-name "C-j"))
 	      (space (get-code-by-name "space"))
+	      (c nil)
 	      )
-	 (dprint t "checkpoint 1~%")
 	 (charms:with-curses ()
 	   (charms:disable-echoing)
 	   (charms:enable-raw-input :interpret-control-characters t)
-	   ;;(charms:enable-non-blocking-mode charms:*standard-window*)
+	   (charms:enable-non-blocking-mode charms:*standard-window*)
 	   (charms:clear-window charms:*standard-window*)
 	   (loop named main-loop
-		 for c = (get-canonical-key)
 		 do (progn
 		      ;; get window update
 		      (multiple-value-bind (ncols nlines)
@@ -56,7 +55,7 @@
 				  (not (= nlines cursz-lines)))
 			  (setf cursz-lines nlines
 				cursz-cols ncols)
-			  (sendcmd *window* :window-resize (1- cursz-lines) (1- cursz-cols))))
+			  (sendcmd *window* :window-resize (- cursz-lines 2) (- cursz-cols 2))))
 		      (setf update-data (cled-core::getrval (sendcmd *window* :window-update)))
 		      (setf cur-dot (cled-core::getrval (sendcmd *window* :get-cursor)))
 		      (setf cursor-line (car (cadr update-data))
@@ -96,7 +95,10 @@
 		      (setf draw-col 0
 			    draw-line 0)
 		      (charms:move-cursor charms:*standard-window* cursor-col cursor-line)
-		      ))))
+		      ;; get the next key, if any, and sleep for 5 ms to help with cycles
+		      (setf c (get-canonical-key))
+		      (sleep 0.005))
+		 )))
     (stop-process *window*)
     (stop-process *buffer*)
     (stop-reaper)))
