@@ -150,7 +150,7 @@
 	      (progn
 		(unless (= (car cur-dot) (dl-length buf))
 		  (cursor-down buf)
-		  (set-dot buf (car (get-dot buf)) 1)))
+		  (set-dot buf (car (get-dot buf)) 0)))
 	      (set-dot buf (car cur-dot) (1+ (cadr cur-dot))))))))
 
 (defmethod set-cursor ((buf simple-buffer) line col)
