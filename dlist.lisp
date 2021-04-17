@@ -17,6 +17,7 @@
 	   #:dl-append
 	   #:dl-push
 	   #:dl-insert
+	   #:dl-insert-after
 	   #:dl-remove
 	   #:dl-next
 	   #:dl-nextn
@@ -77,6 +78,9 @@ lists that lisp chokes on."))
 
 (defgeneric dl-insert (list data)
   (:documentation "Insert DATA just after the cursor"))
+
+(defgeneric dl-insert-after (list data)
+  (:documentation "Insert DATA just before the cursor"))
 
 (defgeneric dl-remove (list)
   (:documentation "Remove the element at the cursor from LIST"))
@@ -172,6 +176,24 @@ lists that lisp chokes on."))
 		     (setf cur new-elem)
 		     (incf length)
 		     (incf loc)))))
+    data))
+
+(defmethod dl-insert-after ((list dlist) data)
+  (with-slots (length loc head cur tail) list
+    (if (and (null head) (null cur) (null tail))
+	(initialize-dlist list data)
+	(if (eq cur head)
+	    (progn
+	      (dl-push list data)
+	      (incf loc))
+	    (let ((new-elem (new-element nil nil data))
+		  (cur->prev (getprev cur)))
+	      (set-prev new-elem cur->prev)
+	      (set-next cur->prev new-elem)
+	      (set-prev cur new-elem)
+	      (set-next new-elem cur)
+	      (incf length)
+	      (incf loc))))
     data))
 
 (defmethod dl-remove ((list dlist))
