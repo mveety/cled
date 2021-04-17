@@ -55,6 +55,8 @@
    (col-dot :initform 0 :initarg :col-dot)))
 
 (defgeneric linen (tbuf))
+(defgeneric zero-dot (tbuf))
+(defgeneric (setf zero-dot) (data tbuf))
 (defgeneric set-linen (tbuf n))
 (defgeneric set-dot (tbuf linen coln))
 (defgeneric get-dot (tbuf))
@@ -70,6 +72,12 @@
 (defmethod initialize-instance :after ((tbuf textbuf) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (dl-push tbuf (make-instance 'tb-line)))
+
+(defmethod zero-dot ((tbuf textbuf))
+  (slot-value (dl-data tbuf) 'zero-dot))
+
+(defmethod (setf zero-dot) (data (tbuf textbuf))
+  (setf (slot-value (dl-data tbuf) 'zero-dot) data))
 
 (defmethod linen ((tbuf textbuf))
   (1+ (dl-loc tbuf)))
@@ -112,9 +120,13 @@
 
 (defmethod remove-char ((tbuf textbuf))
   (let ((line (dl-data tbuf)))
-    (if (= (dl-length line) 0)
-	nil
-	(dl-remove line))))
+    (prog1
+	(if (= (dl-length line) 0)
+	    nil
+	    (dl-remove line))
+      (when (= (dl-length line) 0)
+	(setf (slot-value line 'zero-dot) t))
+	)))
 
 (defmethod get-char ((tbuf textbuf))
   (dl-data (dl-data tbuf)))
@@ -151,3 +163,24 @@
 	      (incf counter))
 	    (format stream ")"))
 	  (format stream "length: 0, data: nil")))))
+
+(defmethod print-object ((list tb-line) stream)
+  (print-unreadable-object (list stream :type t)
+    (let ((tmplst (dlist::copy-dlist list))
+	  (counter 0))
+      (if (> (dl-length tmplst) 0)
+	  (progn
+	    (format stream "length: ~A, zero-dot: ~A, data: "
+		    (dl-length tmplst)
+		    (slot-value list 'zero-dot))
+	    (loop do
+	      (format stream "~S" (dl-data tmplst))
+	      (if (null (dl-next tmplst))
+		  (loop-finish)
+		  (if (< counter (1- *element-printing-limit*))
+		      (format stream " ")
+		      (progn
+			(format stream "...")
+			(loop-finish))))
+	      (incf counter)))
+	  (format stream "length: 0, zero-dot: ~A, data: nil" (slot-value list 'zero-dot))))))

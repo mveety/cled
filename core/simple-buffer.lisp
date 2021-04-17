@@ -127,8 +127,12 @@
       (if (= (cadr cur-dot) 1)
 	  (progn
 	    (unless (= (car cur-dot) 1)
-	      (cursor-up buf)
-	      (set-dot buf (car (get-dot buf)) (line-length buf))))
+	      (if (slot-value (dl-data buf) 'zero-dot)
+		  (progn
+		    (cursor-up buf)
+		    (set-dot buf (car (get-dot buf)) (line-length buf)))
+		  (setf (slot-value (dl-data buf) 'zero-dot) t)
+		  )))
 	  (set-dot buf (car cur-dot) (1- (cadr cur-dot)))))))
 
 (defmethod cursor-right ((buf simple-buffer) &optional (repeat 1))
@@ -154,11 +158,17 @@
     (if (not (= (cadr cur-dot) 1))
 	(remove-char buf)
 	(if (slot-value (dl-data buf) 'zero-dot)
-	    (if (= (line-length buf) 0)
-		(remove-line buf)
-		(merge-lines buf (car cur-dot)))
-	    (set-dot buf (car cur-dot)
-		     (line-length buf)))
+	    (progn
+	      (if (= (line-length buf) 0)
+		  (remove-line buf)
+		  (merge-lines buf (car cur-dot)))
+	      )
+	    (progn
+	      (remove-char buf)
+	      (set-dot buf (car cur-dot)
+		       (line-length buf))
+	      )
+	    )
 	)))
 
 (defmethod buffer-insert-char ((buf simple-buffer) c)

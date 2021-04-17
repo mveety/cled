@@ -23,7 +23,8 @@
    ;; textbuf
    #:set-dot #:get-dot #:insert-line #:remove-line
    #:insert-char #:remove-char #:get-char #:set-char
-   #:get-line #:line-length
+   #:get-line #:line-length #:zero-dot #:linen
+   #:set-linen
    ;; textbuf-tools
    #:make-textbuf #:tbuf-to-list #:get-n-lines #:line-list-to-cs
    #:line-list-to-strings #:line-list-to-chars #:merge-lines #:split-line
