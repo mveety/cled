@@ -137,7 +137,7 @@
 	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
 		wincurcol (mod icurcol cols))
 	  (setf wincurcol icurcol))
-      (if (not (= linelen 0))
+      (if (not (<= linelen 0))
 	  (if (getrval (sendcmd buffer :zero-dot))
 	      wincurcol
 	      (incf wincurcol))

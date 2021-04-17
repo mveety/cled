@@ -29,7 +29,7 @@
 (defmethod set-line-dot ((line tb-line) new-dot)
   (if (= (dl-length line) 0)
       t
-      (if (<= new-dot 0)
+      (if (or (<= new-dot 0))
 	  (progn
 	    (setf (slot-value line 'zero-dot) t)
 	    (move-to line 0))
@@ -111,7 +111,7 @@
 
 (defmethod remove-line ((tbuf textbuf))
   (dl-remove tbuf)
-  (when (= (dl-length tbuf) 0)
+  (when (<= (dl-length tbuf) 0)
     (dl-insert tbuf (make-instance 'tb-line)))
   (get-dot tbuf))
 
@@ -121,10 +121,10 @@
 (defmethod remove-char ((tbuf textbuf))
   (let ((line (dl-data tbuf)))
     (prog1
-	(if (= (dl-length line) 0)
+	(if (<= (dl-length line) 0)
 	    nil
 	    (dl-remove line))
-      (when (= (dl-length line) 0)
+      (when (<= (dl-length line) 0)
 	(setf (slot-value line 'zero-dot) t))
 	)))
 
@@ -165,7 +165,7 @@
 	  (format stream "length: 0, data: nil")))))
 
 (defmethod print-object ((list tb-line) stream)
-  (print-unreadable-object (list stream :type t)
+  (print-unreadable-object (list stream :type t :identity t)
     (let ((tmplst (dlist::copy-dlist list))
 	  (counter 0))
       (if (> (dl-length tmplst) 0)

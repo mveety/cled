@@ -43,7 +43,8 @@
 (defun get-n-lines (tbuf start nlines &optional (reverse t))
   (let ((i 0)
 	(rlines)
-	(cur-dot (get-dot tbuf)))
+	(cur-dot (get-dot tbuf))
+	(zero-dot (zero-dot tbuf)))
     (set-dot tbuf start 0)
     (loop do
       (when (>= i nlines)
@@ -53,6 +54,7 @@
       (when (null (dl-next tbuf))
 	(loop-finish)))
     (apply #'set-dot (cons tbuf cur-dot))
+    (setf (zero-dot tbuf) zero-dot)
     (if reverse
 	(nreverse rlines)
 	rlines)))
