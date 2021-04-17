@@ -57,6 +57,8 @@
 (defgeneric buffer-copy-char (buf)) ;; :char-copy -> char
 (defgeneric buffer-cut-char (buf)) ;; :char-cut -> char
 
+;; hacks
+(defgeneric buffer-zero-dot (buf))
 
 (defmethod buffer-dirty-p ((buf simple-buffer))
   (slot-value buf 'dirty))
@@ -126,25 +128,26 @@
       (setf cur-dot (get-dot buf))
       (if (= (cadr cur-dot) 1)
 	  (progn
-	    (unless (= (car cur-dot) 1)
-	      (if (slot-value (dl-data buf) 'zero-dot)
-		  (progn
-		    (cursor-up buf)
-		    (set-dot buf (car (get-dot buf)) (line-length buf)))
-		  (setf (slot-value (dl-data buf) 'zero-dot) t)
-		  )))
+	    (if (slot-value (dl-data buf) 'zero-dot)
+		(progn
+		  (cursor-up buf)
+		  (set-dot buf (car (get-dot buf)) (line-length buf)))
+		(setf (slot-value (dl-data buf) 'zero-dot) t)
+		))
 	  (set-dot buf (car cur-dot) (1- (cadr cur-dot)))))))
 
 (defmethod cursor-right ((buf simple-buffer) &optional (repeat 1))
   (let ((cur-dot nil))
     (dotimes (i repeat)
-	  (setf cur-dot (get-dot buf))
-      (if (= (cadr cur-dot) (line-length buf))
-	  (progn
-	    (unless (= (car cur-dot) (dl-length buf))
-	      (cursor-down buf)
-	      (set-dot buf (car (get-dot buf)) 1)))
-	  (set-dot buf (car cur-dot) (1+ (cadr cur-dot)))))))
+      (setf cur-dot (get-dot buf))
+      (if (zero-dot buf)
+	  (setf (zero-dot buf) nil)
+	  (if (= (cadr cur-dot) (line-length buf))
+	      (progn
+		(unless (= (car cur-dot) (dl-length buf))
+		  (cursor-down buf)
+		  (set-dot buf (car (get-dot buf)) 1)))
+	      (set-dot buf (car cur-dot) (1+ (cadr cur-dot))))))))
 
 (defmethod set-cursor ((buf simple-buffer) line col)
   (set-dot buf line col))
@@ -159,14 +162,15 @@
 	(remove-char buf)
 	(if (slot-value (dl-data buf) 'zero-dot)
 	    (progn
-	      (if (= (line-length buf) 0)
+	      (if (<= (line-length buf) 0)
 		  (remove-line buf)
 		  (merge-lines buf (car cur-dot)))
 	      )
 	    (progn
 	      (remove-char buf)
-	      (set-dot buf (car cur-dot)
-		       (line-length buf))
+	      (set-dot buf (car cur-dot) (line-length buf))
+	      (when (<= (line-length buf) 0)
+		(setf (zero-dot buf) t))
 	      )
 	    )
 	)))
@@ -205,6 +209,9 @@
       (get-char buf)
     (remove-char buf)))
 
+(defmethod buffer-zero-dot ((buf simple-buffer))
+  (zero-dot buf))
+
 ;;;;;; COMMAND DEFINITIONS ;;;;;;
 
 (defmacro defcmd-buf (name fun &optional (nargs nil))
@@ -241,6 +248,8 @@
 
 (defcmd-buf :char-copy #'buffer-copy-char)
 (defcmd-buf :char-cut #'buffer-cut-char)
+
+(defcmd-buf :zero-dot #'buffer-zero-dot)
 
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
 

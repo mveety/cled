@@ -137,8 +137,12 @@
 	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
 		wincurcol (mod icurcol cols))
 	  (setf wincurcol icurcol))
-      (when (not (= linelen 0))
-	(1+ wincurcol))
+      (if (not (= linelen 0))
+	  (if (getrval (sendcmd buffer :zero-dot))
+	      wincurcol
+	      (incf wincurcol))
+	  (setf wincurcol 0)
+	)
       )))
 
 (defmethod win-cursor-up ((win window))
