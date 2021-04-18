@@ -56,6 +56,8 @@
 (defkey "home"      #o406)
 (defkey "backspace" #o407)
 (defkey "enter" 10)
+(defkey "page-down" #o522)
+(defkey "page-up" #o523)
 
 (loop for code from 0 below 13
       do (let ((scode (format nil "f~A" code)))

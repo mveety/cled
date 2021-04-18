@@ -113,14 +113,16 @@
 	  (setf topline 0)))))
 
 (defmethod page-down ((win window))
-  (with-slots (lines) win
-    (dotimes (x lines)
-      (scroll-down win))))
+  (with-slots (lines topline buffer) win
+    (dotimes (x (- lines 3))
+      (scroll-down win))
+    (set-dot buffer (1- (+ topline lines)) 0)))
 
 (defmethod page-up ((win window))
-  (with-slots (lines) win
-    (dotimes (x lines)
-      (scroll-up win))))
+  (with-slots (lines topline buffer) win
+    (dotimes (x (- lines 3))
+      (scroll-up win))
+    (set-dot buffer topline 0)))
 
 (defmethod update-window-cursor-location ((win window))
   (with-slots (buffer lines cols curline curcol
@@ -196,6 +198,8 @@
 (defcmd-win :cursor-down #'win-cursor-down)
 (defcmd-win :window-update #'get-win-update)
 (defcmd-win :window-resize #'window-resize 2)
+(defcmd-win :page-up #'page-up)
+(defcmd-win :page-down #'page-down)
 
 (defmethod proc-entry ((win window))
   (with-slots (buffer) win

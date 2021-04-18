@@ -17,6 +17,8 @@
 	  (#\B (kbd "down"))
 	  (#\C (kbd "right"))
 	  (#\D (kbd "left"))
+	  (#\5 (if (equal (get-key) #\~) (kbd "page-up") nil))
+	  (#\6 (if (equal (get-key) #\~) (kbd "page-down") nil))
 	  (t nil))
 	(case char
 	  (#\A (kbd "up"))
