@@ -57,9 +57,6 @@
 (defgeneric buffer-copy-char (buf)) ;; :char-copy -> char
 (defgeneric buffer-cut-char (buf)) ;; :char-cut -> char
 
-;; hacks
-(defgeneric buffer-zero-dot (buf))
-
 (defmethod buffer-dirty-p ((buf simple-buffer))
   (slot-value buf 'dirty))
 
@@ -103,55 +100,45 @@
   (setf (slot-value buf 'visible) nil))
 
 (defmethod buffer-nlines ((buf simple-buffer))
-  (dl-length buf))
+  (tbuf-length buf))
 
 (defmethod buffer-linelen ((buf simple-buffer))
   (line-length buf))
 
 (defmethod cursor-up ((buf simple-buffer) &optional (repeat 1))
-  (let ((cur-dot nil) (zero-dot nil))
+  (let ((cur-dot nil))
     (dotimes (i repeat)
-      (setf cur-dot (get-dot buf)
-	    zero-dot (zero-dot buf))
-      (unless (= (car cur-dot) 1)
-	(set-dot buf (1- (car cur-dot)) (cadr cur-dot))
-	(setf (zero-dot buf) zero-dot)))))
+      (setf cur-dot (get-dot buf))
+      (unless (= (car cur-dot) 0)
+	(set-dot buf (1- (car cur-dot)) (cadr cur-dot))))))
 
 (defmethod cursor-down ((buf simple-buffer) &optional (repeat 1))
-  (let ((cur-dot nil) (zero-dot (zero-dot buf)))
+  (let ((cur-dot nil))
     (dotimes (i repeat)
-      (setf cur-dot (get-dot buf)
-	    zero-dot (zero-dot buf))
-      (unless (= (car cur-dot) (dl-length buf))
-	(set-dot buf (1+ (car cur-dot)) (cadr cur-dot))
-	(setf (zero-dot buf) zero-dot)))))
+      (setf cur-dot (get-dot buf))
+      (unless (>= (car cur-dot) (dl-length buf))
+	(set-dot buf (1+ (car cur-dot)) (cadr cur-dot))))))
 
 (defmethod cursor-left ((buf simple-buffer) &optional (repeat 1))
   (let ((cur-dot nil))
     (dotimes (i repeat)
       (setf cur-dot (get-dot buf))
-      (if (= (cadr cur-dot) 1)
-	  (progn
-	    (if (slot-value (dl-data buf) 'zero-dot)
-		(progn
-		  (cursor-up buf)
-		  (set-dot buf (car (get-dot buf)) (line-length buf)))
-		(setf (slot-value (dl-data buf) 'zero-dot) t)
-		))
+      (if (= (cadr cur-dot) 0)
+	  (unless (= (car (get-dot buf)) 0)
+	    (cursor-up buf)
+	    (set-dot buf (car (get-dot buf)) (line-length buf)))
 	  (set-dot buf (car cur-dot) (1- (cadr cur-dot)))))))
 
 (defmethod cursor-right ((buf simple-buffer) &optional (repeat 1))
   (let ((cur-dot nil))
     (dotimes (i repeat)
       (setf cur-dot (get-dot buf))
-      (if (zero-dot buf)
-	  (setf (zero-dot buf) nil)
-	  (if (= (cadr cur-dot) (line-length buf))
-	      (progn
-		(unless (= (car cur-dot) (dl-length buf))
-		  (cursor-down buf)
-		  (set-dot buf (car (get-dot buf)) 0)))
-	      (set-dot buf (car cur-dot) (1+ (cadr cur-dot))))))))
+      (if (= (cadr cur-dot) (line-length buf))
+	  (unless (>= (car cur-dot) (1- (tbuf-length buf)))
+	    (cursor-down buf)
+	    (set-dot buf (car (get-dot buf)) 0))
+	  (set-dot buf (car cur-dot) (1+ (cadr cur-dot)))))))
+
 
 (defmethod set-cursor ((buf simple-buffer) line col)
   (set-dot buf line col))
@@ -162,20 +149,11 @@
 (defmethod buffer-backspace ((buf simple-buffer))
   (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
-    (if (not (= (cadr cur-dot) 1))
-	(remove-char buf)
-	(if (slot-value (dl-data buf) 'zero-dot)
-	    (progn
-	      (if (<= (line-length buf) 0)
-		  (remove-line buf)
-		  (merge-lines buf (car cur-dot))))
-	    (progn
-	      (remove-char buf)
-	      (set-dot buf (car cur-dot) (line-length buf))
-	      (when (<= (line-length buf) 0)
-		(setf (zero-dot buf) t))))))
-  (when (<= (line-length buf) 0)
-    (setf (zero-dot buf) t)))
+    (if (= (cadr cur-dot) 0)
+	(if (<= (line-length buf) 0)
+	    (remove-line buf)
+	    (merge-lines buf (car cur-dot)))
+	(remove-char buf))))
 
 (defmethod buffer-insert-char ((buf simple-buffer) c)
   (set-buffer-dirty buf)
@@ -187,7 +165,7 @@
 (defmethod buffer-newline ((buf simple-buffer))
   (set-buffer-dirty buf)
   (let ((cur-dot (get-dot buf)))
-    (if (slot-value (dl-data buf) 'zero-dot)
+    (if (= (cadr cur-dot) 0)
 	(progn
 	  (insert-line buf :above t)
 	  (set-dot buf (1+ (car cur-dot)) 0))
