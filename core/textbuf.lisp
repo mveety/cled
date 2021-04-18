@@ -65,10 +65,11 @@
       (progn
 	(if (= (dl-loc line) 0)
 	    nil ;; do nothing at the head of a line
-	    (progn
+	    (let ((old-loc (dl-loc line)))
 	      (dl-prev line)
 	      (dl-remove line)
-	      (dl-next line)))
+	      (unless (= old-loc 1)
+		(dl-next line))))
 	(when (= (dl-length line) 0)
 	  (setf (slot-value line 'at-end) t)))))
 
