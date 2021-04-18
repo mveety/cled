@@ -28,15 +28,14 @@
 (defgeneric insert-at-line-dot (line char))
 
 (defmethod set-line-dot ((line tb-line) new-dot)
+  (setf (slot-value line 'at-end) nil)
   (if (= (dl-length line) 0)
       (progn
 	(setf (slot-value line 'at-end) t)
 	t)
       (if (<= new-dot 0)
 	  (progn
-	    (move-to line 0)
-	    (when (= (dl-length line) 1)
-	      (setf (slot-value line 'at-end) nil)))
+	    (move-to line 0))
 	  (if (>= new-dot (dl-length line))
 	      (progn
 		(dl-tail line)

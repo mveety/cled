@@ -150,7 +150,7 @@
     (let ((curdot (getrval (sendcmd buffer :get-cursor))))
       (setf curline (car curdot)
 	    curcol (cadr curdot))
-      (when (> curline (+ (1- topline) shown-lines))
+      (when (> curline (+ topline shown-lines))
 	(scroll-down win)))))
 
 (defmethod get-win-update ((win window))
@@ -200,7 +200,7 @@
 		     (list :status :failed-reply :returns nil)
 		     (car rval)))))
       ;; step one is to initialize the buffer to something sane
-      (sendcmd buffer :set-cursor 1 1)
+      (sendcmd buffer :set-cursor 0 0)
       (run-table win win
 		 :default-function #'default-function
 		 :end-command :end-command)

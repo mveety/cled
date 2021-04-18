@@ -206,22 +206,28 @@ lists that lisp chokes on."))
 	     (setf head nil
 		   cur nil
 		   tail nil
-		   length 0))
+		   length 0)
+	     )
 	    ((and (null prev) next)
 	     (set-prev next nil)
 	     (setf cur next
-		   head next))
+		   head next)
+	     (decf length)
+	     )
 	    ((and prev (null next))
 	     (set-next prev nil)
 	     (setf cur prev
 		   tail prev)
-	     (decf loc))
+	     (decf loc)
+	     (decf length)
+	     )
 	    (t
 	     (set-prev next prev)
 	     (set-next prev next)
 	     (setf cur prev)
-	     (decf loc)))
-	  (decf length)
+	     (decf loc)
+	     (decf length)
+	     ))
 	  t))))
 
 (defmethod dl-next ((list dlist))
