@@ -126,24 +126,14 @@
   (with-slots (buffer lines cols curline curcol
 	       wincurline wincurcol line-offset-data
 	       topline) win
-    ;; wincurline is relative to the top left corner of the window
-    (let* ((icurcol (if (= curcol 0) curcol (1- curcol)))
-	   (rline (- curline topline))
-	   (linelen (getrval (sendcmd buffer :linelen))))
+    (let* ((rline (- curline topline)))
       (setf wincurline (nth rline line-offset-data))
       (when (null wincurline)
 	(setf wincurline (car (last line-offset-data))))
-      (if (> icurcol cols)
-	  (setf wincurline (+ (floor (/ icurcol cols)) wincurline)
-		wincurcol (mod icurcol cols))
-	  (setf wincurcol icurcol))
-      (if (not (<= linelen 0))
-	  (if (getrval (sendcmd buffer :zero-dot))
-	      wincurcol
-	      (incf wincurcol))
-	  (setf wincurcol 0)
-	)
-      )))
+      (if (>= curcol cols)
+	  (setf wincurline (+ (floor (/ curcol cols)) wincurline)
+		wincurcol (mod curcol cols))
+	  (setf wincurcol curcol)))))
 
 (defmethod win-cursor-up ((win window))
   (with-slots (curline curcol topline lines buffer cols shown-lines) win

@@ -189,9 +189,6 @@
       (get-char buf)
     (remove-char buf)))
 
-(defmethod buffer-zero-dot ((buf simple-buffer))
-  (zero-dot buf))
-
 ;;;;;; COMMAND DEFINITIONS ;;;;;;
 
 (defmacro defcmd-buf (name fun &optional (nargs nil))
@@ -228,8 +225,6 @@
 
 (defcmd-buf :char-copy #'buffer-copy-char)
 (defcmd-buf :char-cut #'buffer-cut-char)
-
-(defcmd-buf :zero-dot #'buffer-zero-dot)
 
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
 
