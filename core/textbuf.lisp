@@ -249,23 +249,23 @@
   "This will merge a line with the line above it"
   (let ((cur-dot (get-dot tbuf)))
     (set-dot tbuf source-line 0)
-    (if (<= (car (get-dot tbuf)) 1)
+    (if (<= (car (get-dot tbuf)) 0)
 	(progn
 	  (apply #'set-dot (cons tbuf cur-dot))
 	  nil)
-	(progn
-	  (let ((source (dl-data tbuf))
-		(dest nil)
-		(dest-col-dot 0))
-	    ;; nuke the source line
-	    (remove-line tbuf)
-	    ;; current line is now the dot
-	    (setf dest (dl-data tbuf))
-	    (dl-tail dest)
-	    (setf dest-col-dot (line-dot dest))
-	    (dl-append-list dest (dl-to-list source))
-	    (set-line-dot dest dest-col-dot))
-	  (apply #'set-dot (cons tbuf cur-dot))))))
+	(let ((source (dl-data tbuf))
+	      (dest nil)
+	      (dest-col-dot 0))
+	  ;; nuke the source line
+	  (remove-line tbuf)
+	  (setf cur-dot (get-dot tbuf))
+	  ;; current line is now the dot
+	  (setf dest (dl-data tbuf))
+	  (dl-tail dest)
+	  (setf dest-col-dot (dl-length dest))
+	  (dl-append-list dest (dl-to-list source))
+	  (set-line-dot dest dest-col-dot)
+	  (apply #'set-dot (list tbuf (car cur-dot) dest-col-dot))))))
 
 (defun split-line (tbuf source-line split-pos)
   (let ((cur-dot (get-dot tbuf))
