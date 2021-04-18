@@ -151,7 +151,10 @@
   (let ((cur-dot (get-dot buf)))
     (if (= (cadr cur-dot) 0)
 	(if (<= (line-length buf) 0)
-	    (remove-line buf)
+	    (progn
+	      (remove-line buf)
+	      (setf cur-dot (get-dot buf))
+	      (set-dot buf (car cur-dot) (line-length buf)))
 	    (merge-lines buf (car cur-dot)))
 	(remove-char buf))))
 
