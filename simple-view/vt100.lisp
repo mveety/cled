@@ -25,7 +25,7 @@
 	  (#\B (kbd "down"))
 	  (#\C (kbd "right"))
 	  (#\D (kbd "left"))
-	  (t nil)))))
+	  (t (kbd "escape"))))))
 
 (defun get-canonical-key ()
   (let ((key (get-key)))

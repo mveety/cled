@@ -51,4 +51,5 @@
    #:generate-kbd-event #:send-kbd-event #:make-kbd-event-table
    ;; universal key codes
    #:defkey #:get-code-by-name #:get-name-by-code #:kbd
+   #:ansi-char-p #:backspace-p #:ansi-direct-map-p
    ))
