@@ -12,7 +12,7 @@
    (curcol :initform 0 :initarg :curcol) ;; part of the above
    (wincurline :initform 0) ;; terminal native cursor location
    (wincurcol :initform 0)  ;; part of the above
-   (topline :initform 1 :initarg :topline) ;; top line shown in the buffer
+   (topline :initform 0 :initarg :topline) ;; top line shown in the buffer
    (lines :initform 0 :initarg :lines) ;; window height
    (cols :initform 0 :initarg :cols) ;; window width
    (buffer :initform nil :initarg :buffer) ;; backing buffer
