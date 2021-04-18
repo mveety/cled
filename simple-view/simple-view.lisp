@@ -55,7 +55,7 @@
 				  (not (= nlines cursz-lines)))
 			  (setf cursz-lines nlines
 				cursz-cols ncols)
-			  (sendcmd *window* :window-resize (- cursz-lines 2) (- cursz-cols 2))))
+			  (sendcmd *window* :window-resize (- cursz-lines 1) (- cursz-cols 0))))
 		      (setf update-data (cled-core::getrval (sendcmd *window* :window-update)))
 		      (setf cur-dot (cled-core::getrval (sendcmd *window* :get-cursor)))
 		      (setf cursor-line (car (cadr update-data))

@@ -108,9 +108,9 @@
 (defmethod scroll-up ((win window))
   (with-slots (topline buffer lines) win
     (let ((newtopline (1- topline)))
-      (if (not (<= newtopline 1))
+      (if (not (<= newtopline 0))
 	  (setf topline newtopline)
-	  (setf topline 1)))))
+	  (setf topline 0)))))
 
 (defmethod page-down ((win window))
   (with-slots (lines) win
@@ -137,8 +137,9 @@
 
 (defmethod win-cursor-up ((win window))
   (with-slots (curline curcol topline lines buffer cols shown-lines) win
-    (sendcmd buffer :cursor-up)
-    (let ((curdot (getrval (sendcmd buffer :get-cursor))))
+    (let ((curdot nil))
+      (sendcmd buffer :cursor-up)
+      (setf curdot (getrval (sendcmd buffer :get-cursor)))
       (setf curline (car curdot)
 	    curcol (cadr curdot))
       (when (< curline topline)
@@ -150,7 +151,7 @@
     (let ((curdot (getrval (sendcmd buffer :get-cursor))))
       (setf curline (car curdot)
 	    curcol (cadr curdot))
-      (when (> curline (+ topline shown-lines))
+      (when (>= curline (+ topline shown-lines))
 	(scroll-down win)))))
 
 (defmethod get-win-update ((win window))
@@ -158,10 +159,14 @@
 	       wind-data wincurline wincurcol) win
     (update-window-data win)
     (when (< curline topline)
-      (sendcmd buffer :set-cursor topline curcol)
+      (dotimes (x (- topline curline))
+	(scroll-up win))
+      ;;(sendcmd buffer :set-cursor topline curcol)
       (update-window-data win))
-    (when (>= curline (+ (1- topline) lines))
-      (sendcmd buffer :set-cursor (+ (1- topline) lines) curcol)
+    (when (>= curline (+ topline lines))
+      (dotimes (x (- (1+ curline) (+ topline lines)))
+	(scroll-down win))
+      ;;(sendcmd buffer :set-cursor (+ (1- topline) lines) curcol)
       (update-window-data win))
     (format-window-data win)
     (update-window-cursor-location win)
