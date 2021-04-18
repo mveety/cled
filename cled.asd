@@ -20,7 +20,6 @@
 			     (:file "reaper")
 			     (:file "cmdproc")
 			     (:file "textbuf")
-			     (:file "textbuf-tools")
 			     (:file "buffer")
 			     (:file "buffer-manager")
 			     (:file "simple-buffer")
