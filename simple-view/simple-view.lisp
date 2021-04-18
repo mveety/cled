@@ -44,10 +44,25 @@
 	 (charms:with-curses ()
 	   (charms:disable-echoing)
 	   (charms:enable-raw-input :interpret-control-characters t)
-	   (charms:enable-non-blocking-mode charms:*standard-window*)
+	   ;;;(charms:enable-non-blocking-mode charms:*standard-window*)
+	   (charms:disable-non-blocking-mode charms:*standard-window*)
 	   (charms:clear-window charms:*standard-window*)
 	   (loop named main-loop
 		 do (progn
+		      ;; process the input
+		      (cond
+			((null c) nil)
+			((equal c cursor-up) (sendcmd *window* :cursor-up))
+			((equal c cursor-down) (sendcmd *window* :cursor-down))
+			((equal c cursor-left) (sendcmd *window* :cursor-left))
+			((equal c cursor-right) (sendcmd *window* :cursor-right))
+			((equal c enter) (sendcmd *window* :newline))
+			((equal c space) (sendcmd *window* :space))
+			((equal c backspace) (sendcmd *window* :backspace))
+			((equal c (kbd "C-x")) (return-from main-loop))
+			((equal c (kbd "page-up")) (sendcmd *window* :page-up))
+			((equal c (kbd "page-down")) (sendcmd *window* :page-down))
+			(t (sendcmd *window* :insert (code-char c))))
 		      ;; get window update
 		      (multiple-value-bind (ncols nlines)
 			  (charms:window-dimensions charms:*standard-window*)
@@ -74,20 +89,6 @@
 			    (incf draw-col))
 			  (setf draw-col 0)
 			  (incf draw-line)))
-		      ;; process the input
-		      (cond
-			((null c) nil)
-			((equal c cursor-up) (sendcmd *window* :cursor-up))
-			((equal c cursor-down) (sendcmd *window* :cursor-down))
-			((equal c cursor-left) (sendcmd *window* :cursor-left))
-			((equal c cursor-right) (sendcmd *window* :cursor-right))
-			((equal c enter) (sendcmd *window* :newline))
-			((equal c space) (sendcmd *window* :space))
-			((equal c backspace) (sendcmd *window* :backspace))
-			((equal c (kbd "C-x")) (return-from main-loop))
-			((equal c (kbd "page-up")) (sendcmd *window* :page-up))
-			((equal c (kbd "page-down")) (sendcmd *window* :page-down))
-			(t (sendcmd *window* :insert (code-char c))))
 		      (charms:write-string-at-point
 		       charms:*standard-window*
 		       (format nil "cursor = (~A, ~A), dot = (~A, ~A). C-x to quit"
@@ -97,9 +98,10 @@
 		      (setf draw-col 0
 			    draw-line 0)
 		      (charms:move-cursor charms:*standard-window* cursor-col cursor-line)
-		      ;; get the next key, if any, and sleep for 5 ms to help with cycles
+		      ;; get the next key
 		      (setf c (get-canonical-key))
-		      (sleep 0.005))
+		      ;;(sleep 0.005)
+		      )
 		 )))
     (stop-process *window*)
     (stop-process *buffer*)

@@ -85,8 +85,10 @@
 	     (defkey (concatenate 'string "S-" scode) (+ #o424 code)))))
 
 (defun ansi-char-p (char)
-  (and (>= (char-code char) 27)
-       (< (char-code char) 127)))
+  (if (not (null char))
+      (and (>= (char-code char) 27)
+	   (< (char-code char) 127))
+      nil))
 
 (defun backspace-p (ccode)
   (or (= (kbd "backspace") ccode)
