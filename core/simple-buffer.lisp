@@ -241,7 +241,8 @@
 ;;;;;; SIMPLE-BUFFER HELPERS ;;;;;;
 
 (defmethod proc-entry ((buf simple-buffer))
-  (run-table buf buf :end-command :end-command))
+  (when (run-table buf buf :end-command :end-command)
+    (no-process-restart buf)))
 
 (defmethod proc-exit ((buf simple-buffer))
   (when (message-in-flight-p buf)

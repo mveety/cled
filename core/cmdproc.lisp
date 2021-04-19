@@ -84,7 +84,8 @@
 		  ;; the chain. This means we just pass the straight return values to the
 		  ;; caller.
 		  (reply tmpmsg (funcall default-function msgdata))
-		  (reply tmpmsg (list :status :unknown-command :returns nil))))))))
+		  (reply tmpmsg (list :status :unknown-command :returns nil)))))))
+  t)
 
 (defmethod sendcmd ((p port) name &rest args)
   (let ((rval (message p (append (list name) args))))

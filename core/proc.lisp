@@ -32,6 +32,8 @@
 (defgeneric start-process (proc))
 (defgeneric stop-process (proc))
 (defgeneric delete-process (proc))
+(defgeneric no-process-restart (proc))
+(defgeneric process-restart (proc))
 
 (defmethod initialize-instance :after ((proc process) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -74,3 +76,9 @@
   (with-slots (manager-id) proc
     (stop-process proc)
     (rem-hash *all-processes* manager-id)))
+
+(defmethod no-process-restart ((proc process))
+  (setf (slot-value proc 'restartable) nil))
+
+(defmethod process-restart ((proc process))
+  (setf (slot-value proc 'restartable) t))

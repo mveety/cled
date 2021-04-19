@@ -8,7 +8,7 @@
   (:export
    ;; process management
    #:process #:proc-entry #:proc-exit #:start-process
-   #:stop-process #:delete-process
+   #:stop-process #:delete-process #:no-process-restart #:process-restart
    ;; message passing bits
    #:port #:msg #:sendmsg #:getreply
    #:message #:reply #:waitformsg #:message-in-flight-p

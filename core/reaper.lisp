@@ -16,9 +16,15 @@
 (defvar *grim-reaper* nil)
 (defvar *reaper-messages* t)
 (defvar *reaper-stream* t)
+(defvar *reaper-print-name* t)
 
 (defmacro reaper-format (string &rest args)
   `(if *reaper-messages* (format *reaper-stream* ,string ,@args)))
+
+(defun name-or-object (proc)
+  (if *reaper-print-name*
+      (format nil "~A (~A)" (slot-value proc 'name) (slot-value proc 'manager-id))
+      proc))
 
 ;;; do note: the grim reaper does not reply to messages because it assumes
 ;;; the sender is deceased.
@@ -32,9 +38,9 @@
       (when (equal (car msgdata) :restart)
 	(if (slot-value (cadr msgdata) 'restartable)
 	    (if (start-process (cadr msgdata))
-		(reaper-format "grim-reaper: restarted process ~A~%" (cadr msgdata))
-		(reaper-format "grim-reaper: unable to restart process ~A~%" (cadr msgdata)))
-	    (reaper-format "grim-reaper: disallowed from retarting process ~A~%" (cadr msgdata)))
+		(reaper-format "grim-reaper: restarted process ~A~%" (name-or-object (cadr msgdata)))
+		(reaper-format "grim-reaper: unable to restart process ~A~%" (name-or-object (cadr msgdata))))
+	    (reaper-format "grim-reaper: disallowed from restarting process ~A~%" (name-or-object (cadr msgdata))))
 	(force-output t))
       (when (equal (car msgdata) :stop)
 	(loop-finish)))))
