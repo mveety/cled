@@ -23,6 +23,14 @@
   (let ((code (gethash name *keycodes*)))
     code))
 
+(defun get-sym-by-name (name)
+  (let ((code (gethash name *keysyms*)))
+    code))
+
+(defun get-name-by-sym (sym)
+  (let ((code (gethash (char-code sym) *keynames*)))
+    code))
+
 (defun get-name-by-code (code)
   (let ((name (gethash code *keynames*)))
     name))
