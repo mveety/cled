@@ -250,10 +250,14 @@
 	   :blockp nil))
   (alert-reaper buf))
 
+(defmethod initialize-instance :after ((buf simple-buffer) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (add-template-to-cmd-table buf *simple-buffer-cmd-template* buf))
+
 (defun make-simple-buffer (name &rest args &key &allow-other-keys)
   (declare (ignore args))
   (let ((newbuf (make-instance 'simple-buffer :name name)))
-    (add-template-to-cmd-table newbuf *simple-buffer-cmd-template* newbuf)
+    ;;(add-template-to-cmd-table newbuf *simple-buffer-cmd-template* newbuf)
     (start-process newbuf)
     newbuf))
 

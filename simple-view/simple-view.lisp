@@ -59,6 +59,7 @@
 			((equal c enter) (sendcmd *window* :newline))
 			((equal c space) (sendcmd *window* :space))
 			((equal c backspace) (sendcmd *window* :backspace))
+			((equal c (kbd "C-a")) (sendcmd *window* :set-mark))
 			((equal c (kbd "C-x")) (return-from main-loop))
 			((equal c (kbd "page-up")) (sendcmd *window* :page-up))
 			((equal c (kbd "page-down")) (sendcmd *window* :page-down))

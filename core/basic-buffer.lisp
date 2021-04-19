@@ -29,8 +29,6 @@
 
 (defun bb-cut-and-copy-line (buf start finish copy)
   (set-buffer-dirty buf)
-  (print 'bb-cut-and-copy-line cled::stdout)
-  (format cled::stdout "start = ~A, finish = ~A, copy = ~A~%" start finish copy)
   (when (> finish (line-length buf))
     (setf finish (line-length buf)))
   (if (= start finish)
@@ -49,8 +47,11 @@
 (defun dots-greater-than (dot-a dot-b)
   (if (> (car dot-a) (car dot-b))
       t
-      (> (cadr dot-a) (cadr dot-b)))
-  )
+      (if (= (car dot-a) (car dot-b))
+	  (if (> (cadr dot-a) (cadr dot-b))
+	      t
+	      nil)
+	  nil)))
 
 (defmethod bb-cut-and-copy ((buf basic-buffer) copy)
   (set-buffer-dirty buf)
@@ -59,6 +60,7 @@
 	  (line-data nil)
 	  (data nil)
 	  (nlines 0)
+	  (last-line-full nil)
 	  (first-line-full nil))
       (when (dots-greater-than mark cur-dot)
 	(setf cur-dot mark
@@ -67,8 +69,8 @@
 	  (push (bb-cut-and-copy-line buf (cadr mark) (cadr cur-dot) copy) data)
 	  (progn
 	    (set-dot buf (car mark) (cadr mark))
-	    (setf nlines (- (car mark) (car cur-dot)))
-	    (dotimes (x (1- nlines))
+	    (setf nlines (- (car cur-dot) (car mark)))
+	    (dotimes (x nlines)
 	      (if (= x 0)
 		  (progn
 		    (setf line-data (bb-cut-and-copy-line buf (cadr mark) (line-length buf) copy))
@@ -79,17 +81,21 @@
 	      (when (= (line-length buf) 0)
 		(remove-line buf))
 	      (dl-next buf))
+	    (when (= (cadr cur-dot) (line-length buf))
+	      (setf last-line-full t))
 	    (setf line-data (bb-cut-and-copy-line buf 0 (cadr cur-dot) copy))
 	    (push line-data data)
 	    (if (= (line-length buf) 0)
 		(remove-line buf)
 		(when (and first-line-full (null copy))
 		  (merge-lines buf (car (get-dot buf)))))
+	    (when last-line-full
+	      (push nil data))
 	    (setf data (reverse data))))
       (if copy
 	  (set-dot buf (car cur-dot) (cadr cur-dot))
 	  (set-dot buf (car mark) (cadr mark)))
-      (reverse data))))
+      data)))
 
 (defmethod bb-cut ((buf basic-buffer))
   (bb-cut-and-copy buf nil))
@@ -103,12 +109,14 @@
     (cond
       ((= (cadr dot) 0)
        (insert-line buf :above t)
-       (set-dot buf (1+ (car dot)) 0)
+       (set-dot buf (1- (car (get-dot buf))) 0)
        (dolist (l data)
 	 (dolist (c l)
 	   (insert-char buf c))
 	 (insert-line buf)
-	 (set-dot buf (1+ (car (get-dot buf))) 0)))
+	 (set-dot buf (1+ (car (get-dot buf))) 0))
+       (remove-line buf)
+       (merge-lines buf (1+ (car (get-dot buf)))))
       ((= (cadr dot) (line-length buf))
        (insert-line buf)
        (set-dot buf (1+ (car (get-dot buf))) 0)
@@ -116,7 +124,8 @@
 	 (dolist (c l)
 	   (insert-char buf c))
 	 (insert-line buf)
-	 (set-dot buf (1+ (car (get-dot buf))) 0)))
+	 (set-dot buf (1+ (car (get-dot buf))) 0))
+       (remove-line buf))
       (t
        (split-line buf (car dot) (cadr dot))
        (dolist (l data)
@@ -124,6 +133,7 @@
 	   (insert-char buf c))
 	 (insert-line buf)
 	 (set-dot buf (1+ (car (get-dot buf))) 0))
+       (remove-line buf)
        (set-dot buf (1+ (car (get-dot buf))) 0)
        (merge-lines buf (car (get-dot buf)))))))
        
@@ -140,11 +150,13 @@
 (defcmd-bbuf :cut #'bb-cut)
 (defcmd-bbuf :paste #'bb-paste 1)
 
+(defmethod initialize-instance :after ((buf simple-buffer) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (add-template-to-cmd-table buf *basic-buffer-cmd-template* buf))
+
 (defun make-basic-buffer (name &rest args &key &allow-other-keys)
   (declare (ignore args))
   (let ((newbuf (make-instance 'basic-buffer :name name)))
-    (add-template-to-cmd-table newbuf *simple-buffer-cmd-template* newbuf)
-    (add-template-to-cmd-table newbuf *basic-buffer-cmd-template* newbuf)
     (start-process newbuf)
     newbuf))
 

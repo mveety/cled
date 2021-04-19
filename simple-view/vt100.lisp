@@ -34,6 +34,7 @@
       (#\Rubout (kbd "backspace"))
       (#\Newline (kbd "enter"))
       (#\Can (kbd "C-x"))
+      (#\Soh (kbd "C-a"))
       (otherwise (kbd (when (ansi-char-p key)
 			(get-name-by-code (char-code key)))
 		      ))
