@@ -20,7 +20,7 @@
 
 (defun simple-viewer ()
   (start-grim-reaper)
-  (setf *buffer* (make-buffer 'simple-buffer "main buffer"))
+  (setf *buffer* (make-buffer 'basic-buffer "main buffer"))
   (setf *window* (make-window "main window" *buffer* 23 80))
   (unwind-protect
        (let* ((update-data nil)

@@ -53,4 +53,8 @@
    #:defkey #:get-code-by-name #:get-sym-by-name #:get-name-by-sym
    #:get-name-by-code #:kbd #:ansi-char-p #:backspace-p
    #:ansi-direct-map-p
+   ;; basic-buffer
+   #:basic-buffer #:*basic-buffer-cmd-template*
+   #:bb-set-mark #:bb-get-mark #:bb-cut-and-copy #:bb-cut
+   #:bb-copy #:bb-paste #:make-basic-buffer #:bb-cut-and-copy-line
    ))
