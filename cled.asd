@@ -27,6 +27,7 @@
 			     (:file "kbdutil")
 			     (:file "kbdevent")
 			     (:file "keyboard")
+			     (:file "basic-buffer")
 			     ))
 	       ))
 

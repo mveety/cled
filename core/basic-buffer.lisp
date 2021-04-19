@@ -150,7 +150,7 @@
 (defcmd-bbuf :cut #'bb-cut)
 (defcmd-bbuf :paste #'bb-paste 1)
 
-(defmethod initialize-instance :after ((buf simple-buffer) &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((buf basic-buffer) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (add-template-to-cmd-table buf *basic-buffer-cmd-template* buf))
 
