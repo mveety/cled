@@ -57,6 +57,9 @@
 (defgeneric buffer-copy-char (buf)) ;; :char-copy -> char
 (defgeneric buffer-cut-char (buf)) ;; :char-cut -> char
 
+;;; internal use
+(defgeneric send-owner-message (buf name &rest args))
+
 (defmethod buffer-dirty-p ((buf simple-buffer))
   (slot-value buf 'dirty))
 
@@ -191,6 +194,12 @@
   (prog1
       (get-char buf)
     (remove-char buf)))
+
+(defmethod send-owner-message ((buf simple-buffer) name &rest args)
+  (with-slots (owning-window) buf
+    (if (not (null owning-window))
+	(apply #'sendcmd `(,owning-window ,name ,@args))
+	nil)))
 
 ;;;;;; COMMAND DEFINITIONS ;;;;;;
 
