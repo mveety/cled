@@ -10,6 +10,9 @@
    (type-string :initform "window")
    (curline :initform 0 :initarg :curline) ;; buffer native dot
    (curcol :initform 0 :initarg :curcol) ;; part of the above
+   (hasmark :initform nil)
+   (markcol :initform 0)
+   (markline :initform 0)
    (wincurline :initform 0) ;; terminal native cursor location
    (wincurcol :initform 0)  ;; part of the above
    (topline :initform 0 :initarg :topline) ;; top line shown in the buffer
@@ -48,8 +51,9 @@
 (defgeneric window-resize (win nlines ncols))
 
 (defmethod update-window-data ((win window))
-  (with-slots (topline curcol curline
-	       lines buffer buf-data) win
+  (with-slots (topline curcol curline lines
+	       buffer buf-data markcol markline
+	       hasmark) win
     (let ((buf-update (getrval (sendcmd buffer
 					:get-update
 					topline
@@ -60,11 +64,20 @@
       (if (equal buf-update :error)
 	  nil
 	  (progn
-	    (when (member :dot (car buf-update))
-	      (setf curline (car (cadr buf-update))
-		    curcol (cadr (cadr buf-update))))
-	    (when (member :lines (car buf-update))
-	      (setf buf-data (caddr buf-update)))
+	    (let ((dot-data (assoc :dot buf-update))
+		  (line-data (assoc :lines buf-update))
+		  (mark-data (assoc :mark buf-update)))
+	      (setf curline (car (cadr dot-data))
+		    curcol (cadr (cadr dot-data)))
+	      (when (not (null line-data))
+		(setf buf-data (cadr line-data)))
+	      (if (not (null mark-data))
+		(setf markline (car (cadr mark-data))
+		      markcol (cadr (cadr mark-data))
+		      hasmark t)
+		(setf hasmark nil
+		      markline 0
+		      markcol 0)))
 	    t)))))
 
 (defmethod format-window-data ((win window))
@@ -158,7 +171,8 @@
 
 (defmethod get-win-update ((win window))
   (with-slots (buffer topline curline curcol lines
-	       wind-data wincurline wincurcol) win
+	       wind-data wincurline wincurcol
+	       hasmark markline) win
     (update-window-data win)
     (when (< curline topline)
       (dotimes (x (- topline curline))
@@ -172,11 +186,13 @@
       (update-window-data win))
     (format-window-data win)
     (update-window-cursor-location win)
-    (list '(:dot :lines)
-	  (list wincurline wincurcol)
-	  (if (> (length wind-data) lines)
-	      (subseq wind-data 0 lines)
-	      wind-data))))
+    `((:dot (,wincurline ,wincurcol))
+      (:attrib ,(if (and hasmark (< markline topline))
+		    :reverse
+		    :no-reverse))
+      (:lines ,(if (> (length wind-data) lines)
+		   (subseq wind-data 0 lines)
+		   wind-data)))))
 
 (defmethod window-resize ((win window) nlines ncols)
   (with-slots (lines cols) win

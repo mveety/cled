@@ -78,11 +78,10 @@
 	       (not initial)
 	       (equal last-line start)
 	       (equal last-nlines length))
-	  (list '(:dot) cursor-pos nil)
+	  `((:dot ,cursor-pos))
 	  (prog1
-	      (list '(:dot :lines)
-		    cursor-pos
-		    (line-list-to-chars (get-n-lines buf start length nil)))
+	      `((:dot ,cursor-pos)
+		(:lines ,(line-list-to-chars (get-n-lines buf start length nil))))
 	    (setf last-line start
 		  last-nlines length)
 	    (unset-buffer-dirty buf))))))

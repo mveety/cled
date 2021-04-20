@@ -32,6 +32,8 @@
 	      (cur-dot nil)
 	      (cursz-lines 23)
 	      (cursz-cols 80)
+	      ;;(start-attrib '(:no-reverse))
+	      (attr-reverse #x40000)
 	      (cursor-up (get-code-by-name "up"))
 	      (cursor-down (get-code-by-name "down"))
 	      (cursor-left (get-code-by-name "left"))
@@ -74,9 +76,11 @@
 			  (sendcmd *window* :window-resize (- cursz-lines 1) (- cursz-cols 0))))
 		      (setf update-data (cled-core::getrval (sendcmd *window* :window-update)))
 		      (setf cur-dot (cled-core::getrval (sendcmd *window* :get-cursor)))
-		      (setf cursor-line (car (cadr update-data))
-			    cursor-col (cadr (cadr update-data))
-			    lines (caddr update-data))
+		      (setf cursor-line (car (cadr (assoc :dot update-data)))
+			    cursor-col (cadr (cadr (assoc :dot update-data)))
+			    lines (cadr (assoc :lines update-data))
+			    ;;start-attrib (cdr (assoc :attrib update-data))
+			    )
 		      ;; clear the window
 		      ;;(charms:refresh-window charms:*standard-window*)
 		      (charms:clear-window charms:*standard-window*)
@@ -84,18 +88,23 @@
 		      (charms:with-restored-cursor charms:*standard-window*
 			(dolist (line lines)
 			  (dolist (cc line)
-			    (setf *last-print* cc
-				  *last-print-type* (type-of cc))
-			    (charms:write-char-at-point charms:*standard-window* cc draw-col draw-line)
-			    (incf draw-col))
+			    (if (typep cc 'keyword)
+				(progn nil)
+				(progn
+				  (setf *last-print* cc
+					*last-print-type* (type-of cc))
+				  (charms:write-char-at-point charms:*standard-window* cc draw-col draw-line)
+				  (incf draw-col))))
 			  (setf draw-col 0)
 			  (incf draw-line)))
+		      (charms/ll:attron attr-reverse)
 		      (charms:write-string-at-point
 		       charms:*standard-window*
 		       (format nil "cursor = (~A, ~A), dot = (~A, ~A). C-x to quit"
 			       cursor-line cursor-col
 			       (car cur-dot) (cadr cur-dot))
 		       1 (1- cursz-lines))
+		      (charms/ll:attroff attr-reverse)
 		      (setf draw-col 0
 			    draw-line 0)
 		      (charms:move-cursor charms:*standard-window* cursor-col cursor-line)
