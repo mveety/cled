@@ -57,4 +57,5 @@
    #:basic-buffer #:*basic-buffer-cmd-template*
    #:bb-set-mark #:bb-get-mark #:bb-cut-and-copy #:bb-cut
    #:bb-copy #:bb-paste #:make-basic-buffer #:bb-cut-and-copy-line
+   #:bb-search
    ))

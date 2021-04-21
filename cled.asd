@@ -28,6 +28,7 @@
 			     (:file "kbdevent")
 			     (:file "keyboard")
 			     (:file "basic-buffer")
+			     (:file "bb-search")
 			     ))
 	       ))
 
