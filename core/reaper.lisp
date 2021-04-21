@@ -58,7 +58,8 @@
       nil))
 
 (defun alert-reaper (proc)
-  (when (not (null *grim-reaper*))
+  (when (and (not (null *grim-reaper*))
+	     (slot-value proc 'restartable))
     (let ((newmsg (make-instance 'msg
 				 :payload (list :restart proc)
 				 :reply nil)))
