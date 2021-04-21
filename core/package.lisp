@@ -27,6 +27,7 @@
    #:tbuf-length
    #:make-textbuf #:tbuf-to-list #:get-n-lines #:line-list-to-cs
    #:line-list-to-strings #:line-list-to-chars #:merge-lines #:split-line
+   #:append-list-to-tbuf
    ;; buffer
    #:*buffer-types* #:make-buffer #:define-buffer-type #:buffer
    #:buffer-type #:buffer-type-string #:buffer-name #:buffer-id

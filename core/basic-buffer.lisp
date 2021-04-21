@@ -14,6 +14,7 @@
   "Command table template for basic-buffers")
 
 (defgeneric bb-set-mark (buf))
+(defgeneric bb-unset-mark (buf))
 (defgeneric bb-get-mark (buf))
 (defgeneric bb-cut-and-copy (buf copy))
 (defgeneric bb-cut (buf))
@@ -23,6 +24,10 @@
 (defmethod bb-set-mark ((buf basic-buffer))
   (with-slots (mark) buf
     (setf mark (get-dot buf))))
+
+(defmethod bb-unset-mark ((buf basic-buffer))
+  (with-slots (mark) buf
+    (setf mark nil)))
 
 (defmethod bb-get-mark ((buf basic-buffer))
   (slot-value buf 'mark))
@@ -145,6 +150,7 @@
      :object t))
 
 (defcmd-bbuf :set-mark #'bb-set-mark)
+(defcmd-bbuf :unset-mark #'bb-unset-mark)
 (defcmd-bbuf :get-mark #'bb-get-mark)
 (defcmd-bbuf :copy #'bb-copy)
 (defcmd-bbuf :cut #'bb-cut)

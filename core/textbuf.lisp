@@ -294,6 +294,16 @@
 	  (apply #'set-dot (cons tbuf cur-dot))
 	  nil))))
 
+(defun append-list-to-tbuf (tbuf list &key (start 0))
+  (let ((iter start))
+    (dolist (l list)
+      (set-dot tbuf iter 0)
+      (dolist (c (coerce l 'list))
+	(insert-char tbuf c))
+      (insert-line tbuf)
+      (incf iter))
+    iter))
+
 (defun make-textbuf (list)
   "This will make a new textbuffer from a list of strings"
   (let ((new-tbuf (make-instance 'textbuf))
@@ -307,3 +317,10 @@
       (insert-line new-tbuf)
       (incf iter))
     new-tbuf))
+
+(defun make-testlist (nlines)
+  "This is a cute little secret"
+  (let ((dat nil))
+    (dotimes (i nlines)
+      (push (format nil "@@@@@ This is testline number ~A. TEST TEST TEST @@@@@" i) dat))
+    (nreverse dat)))
