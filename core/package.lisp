@@ -3,8 +3,14 @@
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
 
-(defpackage :cled-core
+(defpackage :cled-config
   (:use :cl :dlist :alexandria :split-sequence)
+  (:nicknames :config)
+  (:export #:*make-backup-files*
+	   ))
+
+(defpackage :cled-core
+  (:use :cl :cled-config :dlist :alexandria :split-sequence)
   (:export
    ;; process management
    #:process #:proc-entry #:proc-exit #:start-process
@@ -15,7 +21,7 @@
    #:get-in-flight-message
    ;; the grim reaper
    #:*grim-reaper* #:*reaper-messages* #:start-grim-reaper #:alert-reaper
-   #:stop-reaper
+   #:stop-reaper #:*reaper-print-name
    ;; message passing event loop
    #:add-command #:command-exists #:find-command #:del-command
    #:run-command #:run-table #:sendcmd #:get-command-list
@@ -59,4 +65,6 @@
    #:bb-set-mark #:bb-get-mark #:bb-cut-and-copy #:bb-cut
    #:bb-copy #:bb-paste #:make-basic-buffer #:bb-cut-and-copy-line
    #:bb-search
+   ;; file-buffer
+   #:file-buffer #:file-read #:file-write
    ))

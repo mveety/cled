@@ -13,6 +13,7 @@
   (:use :cl)
   (:export #:*element-printing-limit*
 	   #:dlist
+	   #:dl-nuke
 	   #:dl-length
 	   #:dl-append
 	   #:dl-push
@@ -60,12 +61,24 @@ lists that lisp chokes on."))
 
 (defun copy-dlist (list)
   (let ((nlist (make-instance 'dlist)))
-    (with-slots (length head cur tail) list
+    (with-slots (length head cur tail loc) list
       (setf (slot-value nlist 'length) length
 	    (slot-value nlist 'head) head
 	    (slot-value nlist 'cur) head
+	    (slot-value nlist 'loc) loc
 	    (slot-value nlist 'tail) tail))
     nlist))
+
+(defun ref-dlist (old-list new-list)
+  (with-slots (length head cur tail loc) new-list
+    (setf (slot-value old-list 'length) length
+	  (slot-value old-list 'head) head
+	  (slot-value old-list 'cur) head
+	  (slot-value old-list 'loc) loc
+	  (slot-value old-list 'tail) tail)))
+
+(defgeneric dl-nuke (list)
+  (:documentation "Completely empty a list"))
 
 (defgeneric dl-length (list)
   (:documentation "Return the length of LIST"))
@@ -117,6 +130,14 @@ lists that lisp chokes on."))
 
 (defgeneric dl-loc (list)
   (:documentation "Get the cursor's location"))
+
+(defmethod dl-nuke ((list dlist))
+  (with-slots (length loc head cur tail) list
+    (setf length 0
+	  loc 0
+	  head nil
+	  cur nil
+	  tail nil)))
 
 (defmethod dl-length ((list dlist))
   (slot-value list 'length))

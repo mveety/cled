@@ -15,6 +15,7 @@
   :components ((:file "dlist")
 	       (:module "core"
 		:components ((:file "package")
+			     (:file "config")
 			     (:file "proc")
 			     (:file "message")
 			     (:file "reaper")
@@ -29,6 +30,7 @@
 			     (:file "keyboard")
 			     (:file "basic-buffer")
 			     (:file "bb-search")
+			     (:file "file-buffer")
 			     ))
 	       ))
 

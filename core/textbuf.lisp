@@ -84,6 +84,7 @@
 (defgeneric get-dot (tbuf))
 (defgeneric insert-line (tbuf &key above tb-line))
 (defgeneric remove-line (tbuf))
+(defgeneric tb-nuke (tbuf))
 (defgeneric insert-char (tbuf char))
 (defgeneric remove-char (tbuf))
 (defgeneric get-char (tbuf))
@@ -126,6 +127,10 @@
   (when (<= (dl-length tbuf) 0)
     (dl-insert tbuf (make-instance 'tb-line)))
   (get-dot tbuf))
+
+(defmethod tb-nuke ((tbuf textbuf))
+  (dl-nuke tbuf)
+  (dl-insert tbuf (make-instance 'tb-line)))
 
 (defmethod insert-char ((tbuf textbuf) char)
   (insert-at-line-dot (dl-data tbuf) char))
