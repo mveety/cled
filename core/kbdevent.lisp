@@ -27,7 +27,7 @@
 (defmethod define-default-kbd-event ((event-table kbd-event-table) canonical-key event
 				     &key (use-key nil) (use-char nil))
   (with-slots (default-event) event-table
-    (setf event-table (list :event event :use-key use-key :use-char use-char))))
+    (setf default-event (list :event event :use-key use-key :use-char use-char))))
 
 (defmethod get-kbd-event ((event-table kbd-event-table) canonical-key)
   (with-slots (hash-table default-event) event-table
