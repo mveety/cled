@@ -18,7 +18,7 @@
    ;; message passing bits
    #:port #:msg #:sendmsg #:getreply
    #:message #:reply #:waitformsg #:message-in-flight-p
-   #:get-in-flight-message
+   #:get-in-flight-message #:checkformsg
    ;; the grim reaper
    #:*grim-reaper* #:*reaper-messages* #:start-grim-reaper #:alert-reaper
    #:stop-reaper #:*reaper-print-name

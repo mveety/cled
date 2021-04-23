@@ -31,6 +31,9 @@
 (defgeneric waitformsg (p)
   (:documentation "Wait to recieve a message"))
 
+(defgeneric checkformsg (p)
+  (:documentation "Returns t if a message is available"))
+
 (defgeneric message-in-flight-p (p)
   (:documentation "Check to see if there is a message that has been recv'd but not replied to"))
 
@@ -80,6 +83,12 @@
       (setf inflight-message msg)
       (setf (slot-value msg 'inflight-port) p)
       msg)))
+
+(defmethod checkformsg ((p port))
+  (with-slots (channel) p
+    (if (chanl:recv-blocks-p channel)
+	nil
+	t)))
 
 (defmethod message-in-flight-p ((p port))
   (with-slots (inflight-message) p
