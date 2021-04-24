@@ -87,6 +87,7 @@
 	    (unset-buffer-dirty buf))))))
 
 (defmethod set-buffer-owner ((buf simple-buffer) win)
+  (set-buffer-dirty buf)
   (setf (slot-value buf 'owning-window) win))
 
 (defmethod unset-buffer-owner ((buf simple-buffer))
@@ -96,6 +97,7 @@
   (setf (buffer-name buf) name))
 
 (defmethod show-buffer ((buf simple-buffer))
+  (set-buffer-dirty buf)
   (setf (slot-value buf 'visible) t))
 
 (defmethod hide-buffer ((buf simple-buffer))

@@ -49,6 +49,7 @@
 (defgeneric win-cursor-down (win))
 (defgeneric get-win-update (win))
 (defgeneric window-resize (win nlines ncols))
+(defgeneric change-buffer (win buf))
 
 (defmethod update-window-data ((win window))
   (with-slots (topline curcol curline lines
@@ -199,6 +200,17 @@
     (setf lines nlines
 	  cols ncols)))
 
+(defmethod change-buffer ((win window) (buf buffer))
+  (with-slots (buffer buf-data) win
+    (unless (null buffer)
+      (sendcmd buffer :hidden)
+      (sendcmd buffer :unset-owner))
+    (setf buffer buf)
+    (setf buf-data nil)
+    (sendcmd buffer :visible)
+    (sendcmd buffer :set-owner win))
+  t)
+
 ;;;;;; command handling for windows ;;;;;;
 
 (defmacro defcmd-win (name fun &optional (nargs nil))
@@ -216,6 +228,7 @@
 (defcmd-win :window-resize #'window-resize 2)
 (defcmd-win :page-up #'page-up)
 (defcmd-win :page-down #'page-down)
+(defcmd-win :change-buffer #'change-buffer 1)
 
 (defmethod proc-entry ((win window))
   (with-slots (buffer) win
@@ -250,4 +263,5 @@
     (add-template-to-cmd-table newwin *window-cmd-template* newwin)
     (start-process newwin)
     (noreturn-sendcmd buffer :set-owner newwin) ;; be sure to tell the buffer who's problem it is
+    (noreturn-sendcmd buffer :visible)
     newwin))
