@@ -21,6 +21,9 @@
       ;;;(charms:enable-non-blocking-mode charms:*standard-window*)
       (loop named main-loop
 	    do (progn
-		 (setf key (charms:get-char charms:*standard-window* :ignore-error t))
+		 (setf key
+		       ;;(charms:get-char charms:*standard-window* :ignore-error t)
+		       (charms/ll:getch)
+		       )
 		 (unless (equal key nil)
 		   (format ostream "[key press: ~S] " key)))))))

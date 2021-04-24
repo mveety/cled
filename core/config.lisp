@@ -3,6 +3,6 @@
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
 
-(in-package :cled-config)
+(in-package :cled-core)
 
 (defvar *make-backup-files* t "Create backup files")

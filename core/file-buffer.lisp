@@ -25,7 +25,7 @@
 	    nil
 	    (let ((output nil)
 		  (old-file (concatenate 'string filename ".old")))
-	      (when config:*make-backup-files*
+	      (when *make-backup-files*
 		(when (probe-file old-file)
 		  (delete-file old-file))
 		(rename-file filename old-file))

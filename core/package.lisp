@@ -3,15 +3,11 @@
 ;;; Copyright 2021 Matthew Veety. Under BSD License
 ;;; See LICENSE for details.
 
-(defpackage :cled-config
-  (:use :cl :dlist :alexandria :split-sequence)
-  (:nicknames :config)
-  (:export #:*make-backup-files*
-	   ))
-
 (defpackage :cled-core
-  (:use :cl :cled-config :dlist :alexandria :split-sequence)
+  (:use :cl :dlist :alexandria :split-sequence)
   (:export
+   ;; configuration
+   #:*make-backup-files*
    ;; process management
    #:process #:proc-entry #:proc-exit #:start-process
    #:stop-process #:delete-process #:no-process-restart #:process-restart
