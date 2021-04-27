@@ -47,3 +47,18 @@
 			     (:file "simple-view")
 			     ))
 	       ))
+
+(asdf:defsystem cled/term-view
+  :author "Matthew Veety <mveety@gmail.com>"
+  :description "Common Lisp version of more?"
+  :license "BSD"
+  :version "0"
+  :depends-on (:alexandria :cl-charms :cled :split-sequence)
+  :serial t
+  :components ((:module "term-view"
+		:components ((:file "package")
+			     (:file "config")
+			     (:file "keyboard")
+			     (:file "input-proc")
+			     ))
+	       ))
