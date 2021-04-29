@@ -99,3 +99,9 @@
 
 (defmethod process-restart ((proc process))
   (setf (slot-value proc 'restartable) t))
+
+(defun all-processes ()
+  (hash-table-alist *all-processes*))
+
+(defun running-processes ()
+  (hash-table-alist *running-processes*))

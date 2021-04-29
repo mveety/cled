@@ -11,7 +11,7 @@
    ;; process management
    #:process #:proc-entry #:proc-exit #:start-process
    #:stop-process #:delete-process #:no-process-restart #:process-restart
-   #:start-process-in-current-thread
+   #:start-process-in-current-thread #:all-processes #:running-processes
    ;; message passing bits
    #:port #:msg #:sendmsg #:getreply
    #:message #:reply #:waitformsg #:message-in-flight-p
