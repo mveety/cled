@@ -81,6 +81,8 @@
 			    (setf nlines (cadr payload)
 				  ncols (caddr payload))
 			    (sendcmd window :window-resize (- nlines 2) ncols)))
+		 (:mode (setf mode (cadr payload) ;; this is for debugging. don't use it.
+			      mode-char (caddr payload)))
 		 (:update nil)
 		 (otherwise nil)))
 	     ;; step 2: get the window update
