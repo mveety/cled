@@ -11,7 +11,8 @@
    (name :initform "the grim reaper")
    (restartable :initform nil))
   (:default-initargs
-   :manager-id (string (gensym "REAPER"))))
+   :manager-id (string (gensym "REAPER"))
+   :channel (make-instance 'chanl:unbounded-channel)))
 
 (defvar *grim-reaper* nil)
 (defvar *reaper-messages* t)
