@@ -65,8 +65,8 @@
 		 (:restart (return-from main-loop))
 		 (:keypress
 		  (let ((mr (case mode
-			      ((or 'normal 'insert) (normal-insert-mode-keys (cadr payload) mode window))
-			      ('command (minibuf-mode-keys (cadr payload) mode window)))))
+			      ((or normal insert) (normal-insert-mode-keys (cadr payload) mode window))
+			      (command (minibuf-mode-keys (cadr payload) mode window)))))
 		    (case mr
 		      (end-mode (setf mode 'normal
 				      mode-char " "))
