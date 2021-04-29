@@ -30,6 +30,7 @@
 (defgeneric proc-entry (proc))
 (defgeneric proc-exit (proc))
 (defgeneric start-process (proc))
+(defgeneric start-process-in-current-thread (proc))
 (defgeneric stop-process (proc))
 (defgeneric delete-process (proc))
 (defgeneric no-process-restart (proc))
@@ -62,6 +63,22 @@
 				     (rem-hash *running-processes* manager-id)
 				     (proc-exit proc)))
 			:name (concatenate 'string type-string "-thread: " name)))
+	  t)
+	nil)))
+
+(defmethod start-process-in-current-thread ((proc process))
+  (with-slots (thread manager-id type-string name restartable) proc
+    (if (and (not (null (gethash manager-id *all-processes*)))
+	     (null (gethash manager-id *running-processes*)))
+	(progn
+	  (setf restartable nil ;; this might be restartable. idk how sbcl would handle this
+		thread (bt:current-thread))
+	  (unwind-protect
+	       (progn
+		 (add-hash *running-processes* manager-id proc)
+		 (proc-entry proc))
+	    (rem-hash *running-processes* manager-id)
+	    (proc-exit proc))
 	  t)
 	nil)))
 
