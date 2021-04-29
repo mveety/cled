@@ -47,7 +47,7 @@
   (let ((k (get-key)))
     (cond
       ((null k) nil)
-      ((eq (equal k #\Rubout) (eq k #\Backspace)) (kbd "backspace"))
+      ((eq (equal k #\Rubout) (eq k #\Backspace)) (kbd "rubout")) ;; rubout is always backspace
       ((eq k #\Esc) (handle-escape))
       ((eq k #\Newline) (kbd "enter"))
       ((ansi-direct-map-p (char-code k)) (char-code k)) ;; currently only handle basic ansi chars for input

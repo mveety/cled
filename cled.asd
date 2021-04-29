@@ -60,5 +60,7 @@
 			     (:file "config")
 			     (:file "keyboard")
 			     (:file "input-proc")
+			     (:file "edcommand")
+			     (:file "minibuffer")
 			     ))
 	       ))
