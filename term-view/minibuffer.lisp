@@ -50,7 +50,8 @@
   (and (>= c (kbd "space"))
        (< c (kbd "rubout"))))
 
-(defun minibuf-mode-keys (c)
+(defun minibuf-mode-keys (c mode win)
+  (declare (ignore mode win))
   (setf *print-last-message* nil)
   (if (valid-minibuf-printable-p c)
       (progn

@@ -11,6 +11,7 @@
    (viewer :initform nil)
    (last-ncols :initform 0)
    (last-nlines :initform 0)
+   (curses-window :initform nil)
    ))
 
 (defmethod proc-exit ((p input-process))
@@ -21,7 +22,7 @@
   (alert-reaper p))
 
 (defmethod proc-entry ((p input-process))
-  (with-slots (viewer last-ncols last-nlines) p
+  (with-slots (viewer last-ncols last-nlines curses-window) p
     (let ((k nil)
 	  (event nil))
       (loop named input-loop
@@ -43,7 +44,7 @@
 		   (progn
 		     (when (null event) ;; resize event
 		       (multiple-value-bind (ncols nlines)
-			   (charms:window-dimensions charms:*standard-window*)
+			   (charms:window-dimensions curses-window)
 			 (when (or (not (= ncols last-ncols))
 				   (not (= nlines last-nlines)))
 			   (setf last-ncols ncols

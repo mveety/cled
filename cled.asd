@@ -62,5 +62,6 @@
 			     (:file "input-proc")
 			     (:file "edcommand")
 			     (:file "minibuffer")
+			     (:file "term-view")
 			     ))
 	       ))
